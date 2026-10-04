@@ -286,12 +286,14 @@ function App() {
     } catch {}
     audioRef.current = createSoundEngine({
       storage,
+      backgroundMusic: true,
       hidden: () => document.hidden,
     });
   }
   const [soundEnabled, setSoundEnabled] = useState(
     () => audioRef.current.enabled,
   );
+  const [effectsEnabled, setEffectsEnabled] = useState(() => audioRef.current.effectsEnabled);
   useEffect(() => {
     const unlock = () => audioRef.current.unlock();
     window.addEventListener("pointerdown", unlock, true);
@@ -982,6 +984,19 @@ function App() {
                   }}
                 >
                   {soundEnabled ? "♪ 소리 켜짐" : "♪ 소리 꺼짐"}
+                </button>
+                <button
+                  className="sound-toggle"
+                  aria-label={effectsEnabled ? "효과음만 끄기" : "효과음 켜기"}
+                  aria-pressed={effectsEnabled}
+                  title="배경음악은 유지하고 효과음만 켜거나 끕니다"
+                  onClick={() => {
+                    const next = !audioRef.current.effectsEnabled;
+                    audioRef.current.setEffectsEnabled(next);
+                    setEffectsEnabled(next);
+                  }}
+                >
+                  {effectsEnabled ? "효과음 켜짐" : "효과음 꺼짐"}
                 </button>
                 <button
                   onClick={() => setPaused((p) => !p)}

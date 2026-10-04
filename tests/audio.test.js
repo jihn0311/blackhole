@@ -211,3 +211,27 @@ test("corruption bursts play impact and noise once per batch and respect mute", 
  assert.equal(engine.playCorruptionBurst(),false);
  engine.dispose();
 });
+
+test("space background survives effect-only mute and resumes after credits", () => {
+  const f = fake(), stored = [];
+  const engine = createSoundEngine({
+    contextFactory: () => f.c,
+    backgroundMusic: true,
+    storage: { getItem: () => null, setItem: (k, v) => stored.push([k, v]) },
+  });
+  try {
+    assert.equal(f.calls.length, 0);
+    engine.unlock();
+    const started = f.calls.filter((x) => x[0] === "start").length;
+    assert.ok(started > 0);
+    engine.setEffectsEnabled(false);
+    assert.equal(engine.enabled, true);
+    assert.equal(engine.effectsEnabled, false);
+    assert.deepEqual(stored.at(-1), ["event-horizon-effects", "off"]);
+    assert.equal(f.calls.filter((x) => x[0] === "start").length, started);
+    engine.playCredits();
+    const creditsStarts = f.calls.filter((x) => x[0] === "start").length;
+    engine.stopCredits();
+    assert.ok(f.calls.filter((x) => x[0] === "start").length > creditsStarts);
+  } finally { engine.dispose(); }
+});

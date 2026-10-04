@@ -1,3 +1,4 @@
+import { startSpaceScore } from "./spaceMusic.js";
 import { startCreditsScore } from "./creditsMusic.js";
 // Short procedural effects: no downloads or external sound assets needed.
 export function createSoundEngine({
@@ -5,14 +6,20 @@ export function createSoundEngine({
   storage,
   hidden = () => false,
   offline = false,
+  backgroundMusic = false,
 } = {}) {
-  let context, master, compressor, reverb, reverbGain, noise;
-  let enabled = true;
+  let context, master, effects, compressor, reverb, reverbGain, noise;
+  let enabled = true, effectsEnabled = true, stopBackground;
   let collapse = 0;
   let creditsVariant = "normal";
   let creditsRequested = false,
     stopScore;
+  function startBackground() {
+    if (backgroundMusic && enabled && !creditsRequested && context?.state === "running" && !stopBackground)
+      stopBackground = startSpaceScore(context, master);
+  }
   function startScore() {
+    startBackground();
     if (creditsRequested && enabled && context && !stopScore)
       stopScore = startCreditsScore(context, master, creditsVariant);
   }
@@ -22,6 +29,7 @@ export function createSoundEngine({
   let lastBurst = -Infinity;
   try {
     enabled = storage?.getItem("event-horizon-sound") !== "off";
+    effectsEnabled = storage?.getItem("event-horizon-effects") !== "off";
   } catch {}
   const factory =
     contextFactory ||
@@ -36,6 +44,9 @@ export function createSoundEngine({
       if (!context) return null;
       master = context.createGain();
       master.gain.value = enabled ? 0.4 : 0;
+      effects = context.createGain();
+      effects.gain.value = effectsEnabled ? 1 : 0;
+      effects.connect(master);
       compressor = context.createDynamicsCompressor();
       compressor.threshold.value = -14;
       compressor.knee.value = 12;
@@ -56,7 +67,7 @@ export function createSoundEngine({
       reverbGain = context.createGain();
       reverbGain.gain.value = 0.25;
       reverb.connect(reverbGain);
-      reverbGain.connect(master);
+      reverbGain.connect(effects);
       noise = context.createBuffer(
         1,
         Math.ceil(context.sampleRate * 0.2),
@@ -112,7 +123,7 @@ export function createSoundEngine({
       gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
     }
     source.connect(gain);
-    gain.connect(master);
+    gain.connect(effects);
     if (wet) gain.connect(reverb);
     register(source, gain);
     source.start(start);
@@ -164,7 +175,7 @@ export function createSoundEngine({
     gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.44);
     source.connect(filter);
     filter.connect(gain);
-    gain.connect(master);
+    gain.connect(effects);
     register(source, gain);
     const end = source.onended;
     source.onended = () => {
@@ -247,7 +258,7 @@ export function createSoundEngine({
     gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.6);
     source.connect(filter);
     filter.connect(gain);
-    gain.connect(master);
+    gain.connect(effects);
     register(source, gain);
     const end = source.onended;
     source.onended = () => {
@@ -302,7 +313,7 @@ export function createSoundEngine({
     gain.gain.exponentialRampToValueAtTime(0.0001, t + 4);
     source.connect(filter);
     filter.connect(gain);
-    gain.connect(master);
+    gain.connect(effects);
     gain.connect(reverb);
     register(source, gain);
     const end = source.onended;
@@ -315,6 +326,12 @@ export function createSoundEngine({
     return true;
   }
   return {
+    get effectsEnabled() { return effectsEnabled; },
+    setEffectsEnabled(value) {
+      effectsEnabled = !!value;
+      try { storage?.setItem("event-horizon-effects", effectsEnabled ? "on" : "off"); } catch {}
+      if (effects && context) effects.gain.setTargetAtTime(effectsEnabled ? 1 : 0, context.currentTime, 0.025);
+    },
     get enabled() {
       return enabled;
     },
@@ -366,12 +383,14 @@ export function createSoundEngine({
       }
       creditsVariant = selected;
       creditsRequested = true;
+      stopBackground?.(); stopBackground = undefined;
       startScore();
     },
     stopCredits() {
       creditsRequested = false;
       stopScore?.();
       stopScore = undefined;
+      startBackground();
     },
     playSpawn: spawn,
     playAbsorb: absorb,
@@ -384,6 +403,7 @@ export function createSoundEngine({
     // A context is created by a real input gesture, never at page load.
     dispose() {
       this.stopCredits();
+      stopBackground?.(); stopBackground = undefined;
       for (const source of active) {
         try {
           source.stop();
@@ -399,3 +419,4 @@ export function createSoundEngine({
     },
   };
 }
+

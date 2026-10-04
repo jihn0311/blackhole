@@ -2617,3 +2617,4 @@ article.body-card:hover {
 .game-layout { overflow: clip; }
 .panel-dock > aside { transition: transform .3s ease, opacity .2s, visibility .3s; }
 @media (prefers-reduced-motion: reduce) { .panel-dock > aside { transition: none; } }
+.playback-actions { flex-wrap: wrap; }
