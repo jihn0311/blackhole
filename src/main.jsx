@@ -539,6 +539,7 @@ function App() {
       critical = isCritical(before, roll),
       n = update((s) => absorb(s, id, roll));
     audioRef.current.playAbsorb();
+    if (level(n.mass) > level(before.mass)) audioRef.current.playLevelUp();
     if (discovered(n) === bodies.length && discovered(before) < bodies.length) {
       notify("우주 통달! 영구 질량 ×20 · 포인트 보상 ×3 · 쿨타임 40% 감소");
       audioRef.current.playRebirth();

@@ -190,6 +190,15 @@ export function createSoundEngine({
     );
     return true;
   }
+  function levelUp() {
+    if (!enabled || hidden() || !context || (!offline && context.state !== "running"))
+      return false;
+    const t = context.currentTime;
+    [392, 587.33, 783.99].forEach((frequency, i) =>
+      tone(frequency, t + i * 0.075, 0.45, 0.12, "triangle", 0.012, frequency, true),
+    );
+    return true;
+  }
   function firstUpgrade() {
     if (!enabled || hidden() || !context || (!offline && context.state !== "running"))
       return false;
@@ -370,6 +379,7 @@ export function createSoundEngine({
     playUnlock: unlockBody,
     playMission: missionComplete,
     playFirstUpgrade: firstUpgrade,
+    playLevelUp: levelUp,
     playRebirth: rebirth,
     // A context is created by a real input gesture, never at page load.
     dispose() {
