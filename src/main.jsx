@@ -74,6 +74,7 @@ function Universe({ state, onAbsorb, queue, paused, controls }) {
       frame,
       last = 0,
       t = 0,
+      sparkSequence = 0,
       particles = [],
       sparks = [];
     const stars = Array.from({ length: 260 }, () => [
@@ -166,9 +167,16 @@ function Universe({ state, onAbsorb, queue, paused, controls }) {
           if (advanceInfall(p, cx, cy, r, dt)) {
             p.done = true;
             const gained = current.onAbsorb(p.id);
+            // Advance independently of the live label count so rapid absorption
+            // cannot keep reusing one position once the label limit is reached.
+            const angle = sparkSequence++ * 2.399963229728653;
+            const spreadX = Math.min(r + 100, w * 0.3);
+            const spreadY = Math.min(r + 65, h * 0.25);
             sparks.push({
-              x: cx + (sparks.length % 3 - 1) * 65,
-              y: cy + r + 40 + (sparks.length % 2) * 24,
+              x: cx + Math.cos(angle) * spreadX,
+              y: cy + Math.sin(angle) * spreadY,
+              vx: Math.cos(angle) * 25,
+              vy: Math.sin(angle) * 18 - 12,
               life: 0,
               text:
                 (gained.critical ? "CRITICAL ×10 · +" : "+") +
@@ -193,8 +201,12 @@ function Universe({ state, onAbsorb, queue, paused, controls }) {
         ctx.lineWidth = 3;
         ctx.strokeStyle = "#080b12";
         ctx.textAlign = "center";
-        ctx.strokeText(s.text, s.x, s.y - s.life * 24);
-        ctx.fillText(s.text, s.x, s.y - s.life * 24);
+        const maxWidth = Math.max(1, w - 20);
+        const halfWidth = Math.min(ctx.measureText(s.text).width, maxWidth) / 2;
+        const labelX = Math.max(halfWidth + 10, Math.min(w - halfWidth - 10, s.x + s.life * s.vx));
+        const labelY = Math.max(30, Math.min(h - 16, s.y + s.life * s.vy));
+        ctx.strokeText(s.text, labelX, labelY, maxWidth);
+        ctx.fillText(s.text, labelX, labelY, maxWidth);
       }
       ctx.globalAlpha = 1;
       sparks = sparks.filter((s) => s.life < 1.8);
