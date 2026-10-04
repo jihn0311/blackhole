@@ -348,6 +348,18 @@ function App() {
     }
     wasOverdrive.current = overdrive;
   }, [overdrive]);
+  const [leftCollapsed, setLeftCollapsed] = useState(false);
+  const [rightCollapsed, setRightCollapsed] = useState(false);
+  const [newBodies, setNewBodies] = useState([]);
+  const lastUnlocked = useRef(bodies.filter((b) => isUnlocked(state, b)).map((b) => b.id));
+  useEffect(() => {
+    const ids = bodies.filter((b) => isUnlocked(state, b)).map((b) => b.id);
+    const added = ids.filter((id) => !lastUnlocked.current.includes(id));
+    if (added.length || ids.length < lastUnlocked.current.length)
+      setNewBodies((old) => [...new Set([...old.filter((id) => ids.includes(id)), ...added])]);
+    lastUnlocked.current = ids;
+  }, [state.mass, state.rebirths]);
+  useEffect(() => { setNewBodies([]); }, [generation]);
   const unlockedCount = bodies.filter((body) => isUnlocked(state, body)).length;
   const previousUnlockedCount = useRef(unlockedCount);
   useEffect(() => {
@@ -709,8 +721,13 @@ function App() {
           </button>
         </div>
       </header>
-      <main>
-        <aside className="left-panel">
+      <main className={`game-layout ${leftCollapsed ? "left-collapsed" : ""} ${rightCollapsed ? "right-collapsed" : ""}`}>
+        <div className="panel-dock dock-left">
+          <button className="panel-toggle" aria-label={leftCollapsed ? "질량·미션 펼치기" : "질량·미션 접기"} aria-expanded={!leftCollapsed} aria-controls="report-panel" onClick={() => setLeftCollapsed((v) => !v)}>
+            {leftCollapsed ? "❯" : "❮"}
+            {mission && mission.value(state) >= mission.target && <span className="notification-dot" role="img" aria-label="미션 보상 수령 가능" />}
+          </button>
+        <aside id="report-panel" className="left-panel" inert={leftCollapsed}>
           <div className="eyebrow">
             SINGULARITY REPORT <span>01</span>
           </div>
@@ -869,6 +886,7 @@ function App() {
             실제 천체 정보는 도감에서 확인하세요.
           </p>
         </aside>
+        </div>
         <section
           className={`space-panel ${fullyUpgraded(state) && bodies.every((body) => isUnlocked(state, body)) ? "sky-mastery" : ""} ${fullyUpgraded(state) ? "singularity-overdrive" : ""} ${codexComplete(state) ? "codex-mastery" : ""}`}
         >
@@ -947,7 +965,15 @@ function App() {
             </div>
           </div>
         </section>
-        <aside className="right-panel">
+        <div className="panel-dock dock-right">
+          <button className="panel-toggle" aria-label={rightCollapsed ? "천체 목록 펼치기" : "천체 목록 접기"} aria-expanded={!rightCollapsed} aria-controls="celestial-panel" onClick={() => {
+            setRightCollapsed((v) => !v);
+            if (rightCollapsed) setNewBodies([]);
+          }}>
+            {rightCollapsed ? "❮" : "❯"}
+            {newBodies.length > 0 && <span className="notification-dot" role="img" aria-label="새 천체 해금" />}
+          </button>
+        <aside id="celestial-panel" className="right-panel" inert={rightCollapsed}>
           <div className="eyebrow">CELESTIAL OBJECTS</div>
           <div className="catalog-title">
             <h2>천체 생성</h2>
@@ -976,9 +1002,10 @@ function App() {
                   className={`body-card ${selected === b.id ? "selected" : ""} ${locked ? "locked" : ""}`}
                   disabled={locked}
                   aria-pressed={selected === b.id}
-                  onClick={() => setSelected(b.id)}
+                  onClick={() => { setSelected(b.id); setNewBodies((ids) => ids.filter((id) => id !== b.id)); }}
                 >
                   <kbd className="body-key">{shortcuts[i]}</kbd>
+                  {newBodies.includes(b.id) && <span className="notification-dot body-new-dot" role="img" aria-label="새로 해금된 천체" />}
                   <Planet body={b} />
                   <span className="body-details">
                     <strong>
@@ -1034,6 +1061,7 @@ function App() {
             나의 천체 도감 <span>↗</span>
           </button>
         </aside>
+        </div>
       </main>
       <footer>
         <span>성장은 작은 끌림에서 시작됩니다.</span>
