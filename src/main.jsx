@@ -74,7 +74,6 @@ function Universe({ state, onAbsorb, queue, paused, controls }) {
       frame,
       last = 0,
       t = 0,
-      sparkSequence = 0,
       particles = [],
       sparks = [];
     const stars = Array.from({ length: 260 }, () => [
@@ -167,16 +166,13 @@ function Universe({ state, onAbsorb, queue, paused, controls }) {
           if (advanceInfall(p, cx, cy, r, dt)) {
             p.done = true;
             const gained = current.onAbsorb(p.id);
-            // Advance independently of the live label count so rapid absorption
-            // cannot keep reusing one position once the label limit is reached.
-            const angle = sparkSequence++ * 2.399963229728653;
-            const spreadX = Math.min(r + 100, w * 0.3);
-            const spreadY = Math.min(r + 65, h * 0.25);
+            // Keep absorption labels in a compact band below the black hole.
+            const spreadX = Math.min(r + 55, w * 0.22);
             sparks.push({
-              x: cx + Math.cos(angle) * spreadX,
-              y: cy + Math.sin(angle) * spreadY,
-              vx: Math.cos(angle) * 25,
-              vy: Math.sin(angle) * 18 - 12,
+              x: cx + (Math.random() * 2 - 1) * spreadX,
+              y: cy + imageHeight * 0.32 + 28 + Math.random() * 38,
+              vx: 0,
+              vy: -8,
               life: 0,
               text:
                 (gained.critical ? "CRITICAL ×10 · +" : "+") +
