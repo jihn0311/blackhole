@@ -1,0 +1,12 @@
+node_modules/
+dist/
+release/
+*.log
+.pptx-build/
+.inspect.py
+.read-form.py
+output/*.py
+.env
+.env.*
+!.env.example
+~$*
