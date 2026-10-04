@@ -425,6 +425,13 @@ function App() {
     catalog = discovered(state),
     mission = missions[state.mission],
     nextBody = bodies.find((b) => !isUnlocked(state, b));
+  const readyMission = mission && mission.value(state) >= mission.target ? state.mission : null;
+  const lastReadyMission = useRef(readyMission);
+  useEffect(() => {
+    if (readyMission !== null && readyMission !== lastReadyMission.current)
+      audioRef.current.playMission();
+    lastReadyMission.current = readyMission;
+  }, [readyMission]);
   useEffect(() => {
     if (ended || (tab === "play" && !resetOpen && !endingRestartOpen)) return;
     const trap = (e) => {

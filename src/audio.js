@@ -190,6 +190,16 @@ export function createSoundEngine({
     );
     return true;
   }
+  function missionComplete() {
+    if (!enabled || hidden() || !context || (!offline && context.state !== "running"))
+      return false;
+    const t = context.currentTime;
+    [659.25, 783.99, 1046.5].forEach((frequency, i) =>
+      tone(frequency, t + i * 0.16, 0.8, 0.14, "sine", 0.015, frequency, true),
+    );
+    tone(523.25, t + 0.32, 1, 0.09, "triangle", 0.02, 523.25, true);
+    return true;
+  }
   function corruptionBurst() {
     if (
       !enabled ||
@@ -346,6 +356,7 @@ export function createSoundEngine({
     playAbsorb: absorb,
     playCorruptionBurst: corruptionBurst,
     playUnlock: unlockBody,
+    playMission: missionComplete,
     playRebirth: rebirth,
     // A context is created by a real input gesture, never at page load.
     dispose() {
