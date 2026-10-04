@@ -338,6 +338,14 @@ function App() {
     return () => window.removeEventListener("keydown", onCode);
   }, [tab]);
   const overdrive = fullyUpgraded(state);
+  const purchasedUpgrades = upgradeCount(state);
+  const previousUpgradeCount = useRef(purchasedUpgrades);
+  useEffect(() => {
+    // The full-tree celebration below owns the sound when bulk buying all 80.
+    if (previousUpgradeCount.current === 0 && purchasedUpgrades > 0 && !overdrive)
+      audioRef.current.playRebirth();
+    previousUpgradeCount.current = purchasedUpgrades;
+  }, [purchasedUpgrades, overdrive]);
   const wasOverdrive = useRef(overdrive);
   useEffect(() => {
     if (overdrive && !wasOverdrive.current) {
