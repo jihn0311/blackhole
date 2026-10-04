@@ -35,7 +35,7 @@ export function createSoundEngine({
       context = factory();
       if (!context) return null;
       master = context.createGain();
-      master.gain.value = enabled ? 0.28 : 0;
+      master.gain.value = enabled ? 0.4 : 0;
       compressor = context.createDynamicsCompressor();
       compressor.threshold.value = -14;
       compressor.knee.value = 12;
@@ -305,7 +305,7 @@ export function createSoundEngine({
       if (master && context) {
         const t = context.currentTime;
         master.gain.cancelScheduledValues(t);
-        master.gain.setTargetAtTime(enabled ? 0.28 : 0, t, 0.025);
+        master.gain.setTargetAtTime(enabled ? 0.4 : 0, t, 0.025);
       }
       if (enabled) this.unlock();
     },
@@ -316,14 +316,14 @@ export function createSoundEngine({
       if (!master || !context) return;
       const t = context.currentTime;
       master.gain.cancelScheduledValues(t);
-      master.gain.setValueAtTime(enabled ? 0.28 : 0.0001, t);
+      master.gain.setValueAtTime(enabled ? 0.4 : 0.0001, t);
       master.gain.exponentialRampToValueAtTime(0.0001, t + 6.5);
     },
     restoreVolume() {
       if (!master || !context) return;
       const t = context.currentTime;
       master.gain.cancelScheduledValues(t);
-      master.gain.setTargetAtTime(enabled ? 0.28 : 0, t, 0.2);
+      master.gain.setTargetAtTime(enabled ? 0.4 : 0, t, 0.2);
     },
     playCredits(variant = "normal") {
       const selected = ["hacking", "survivor"].includes(variant)

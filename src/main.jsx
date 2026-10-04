@@ -1,3 +1,4 @@
+import { survivorEligible } from "./survivorEligibility.js";
 import { AchievementToast } from "./AchievementToast.jsx";
 import { CosmicEnding } from "./CosmicEnding.jsx";
 import { collapseStage, endingReached } from "./collapse.js";
@@ -188,8 +189,11 @@ function Universe({ state, onAbsorb, queue, paused, controls }) {
         if (!current.paused) s.life += dt;
         ctx.globalAlpha = Math.max(0, 1 - s.life / 1.8);
         ctx.fillStyle = s.critical ? "#ff7b9e" : "#f5c392";
-        ctx.font = "13px monospace";
+        ctx.font = `bold ${s.critical ? 26 : 21}px monospace`;
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = "#080b12";
         ctx.textAlign = "center";
+        ctx.strokeText(s.text, s.x, s.y - s.life * 24);
         ctx.fillText(s.text, s.x, s.y - s.life * 24);
       }
       ctx.globalAlpha = 1;
@@ -368,40 +372,16 @@ function App() {
   ];
   const endingsAvailable = unlockedEndings.length > 0;
   const [survivorEnding, setSurvivorEnding] = useState(false);
+  const canSurvive = survivorEligible(state);
   useEffect(() => {
-    if (
-      state.endingSeen ||
-      state.survivorDisqualified ||
-      state.cheatUsed ||
-      state.mass > 0 ||
-      state.rebirths > 0 ||
-      Object.keys(state.cooldowns).length > 0
-    )
-      return;
+    if (!canSurvive || survivorEnding || creditsReplay) return;
     const timer = setTimeout(() => {
+      if (!survivorEligible(live.current)) return;
       setSurvivorEnding(true);
       setTab("play");
     }, 120000);
-    const cancel = () => {
-      clearTimeout(timer);
-      update((current) => ({ ...current, survivorDisqualified: true }));
-    };
-    window.addEventListener("pointerdown", cancel, { once: true });
-    window.addEventListener("keydown", cancel, { once: true });
-    window.addEventListener("wheel", cancel, { once: true, passive: true });
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener("pointerdown", cancel);
-      window.removeEventListener("keydown", cancel);
-      window.removeEventListener("wheel", cancel);
-    };
-  }, [
-    state.endingSeen,
-    state.survivorDisqualified,
-    state.cheatUsed,
-    state.mass,
-    state.rebirths,
-  ]);
+    return () => clearTimeout(timer);
+  }, [canSurvive, generation, survivorEnding, creditsReplay]);
   const ended =
     survivorEnding ||
     creditsReplay ||
