@@ -190,6 +190,18 @@ export function createSoundEngine({
     );
     return true;
   }
+  function firstUpgrade() {
+    if (!enabled || hidden() || !context || (!offline && context.state !== "running"))
+      return false;
+    const t = context.currentTime;
+    // A compact low impact and suspended chord, distinct from the rebirth swell.
+    tone(110, t, 0.65, 0.32, "sine", 0.008, 42);
+    [220, 293.66, 440].forEach((frequency, i) =>
+      tone(frequency, t + 0.08 + i * 0.045, 1.4, 0.12, "triangle", 0.04, frequency, true),
+    );
+    tone(880, t + 0.27, 1.1, 0.065, "sine", 0.015, 880, true);
+    return true;
+  }
   function missionComplete() {
     if (!enabled || hidden() || !context || (!offline && context.state !== "running"))
       return false;
@@ -357,6 +369,7 @@ export function createSoundEngine({
     playCorruptionBurst: corruptionBurst,
     playUnlock: unlockBody,
     playMission: missionComplete,
+    playFirstUpgrade: firstUpgrade,
     playRebirth: rebirth,
     // A context is created by a real input gesture, never at page load.
     dispose() {

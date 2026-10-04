@@ -343,7 +343,7 @@ function App() {
   useEffect(() => {
     // The full-tree celebration below owns the sound when bulk buying all 80.
     if (previousUpgradeCount.current === 0 && purchasedUpgrades > 0 && !overdrive)
-      audioRef.current.playRebirth();
+      audioRef.current.playFirstUpgrade();
     previousUpgradeCount.current = purchasedUpgrades;
   }, [purchasedUpgrades, overdrive]);
   const wasOverdrive = useRef(overdrive);
