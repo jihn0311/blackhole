@@ -8,8 +8,10 @@ export function createSpawnInput(getContext) {
   function emit(id, quiet = false) {
     const c = getContext();
     if (!c.enabled) return;
-    const position = pointer || held?.fallback;
-    if (!position) return;
+    const position = {
+      x: 0.15 + Math.random() * 0.7,
+      y: Math.random() < 0.5 ? 0.12 : 0.85,
+    };
     c.onSpawn(id, position.x, position.y, false, quiet);
   }
   return {
@@ -39,13 +41,6 @@ export function createSpawnInput(getContext) {
       held = {
         id,
         token,
-        fallback:
-          token !== "pointer"
-            ? {
-                x: 0.15 + Math.random() * 0.7,
-                y: Math.random() < 0.5 ? 0.12 : 0.85,
-              }
-            : null,
       };
       emit(id);
     },

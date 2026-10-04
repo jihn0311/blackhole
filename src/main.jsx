@@ -211,7 +211,7 @@ function Universe({ state, onAbsorb, queue, paused, controls }) {
       <canvas
         ref={ref}
         className="universe"
-        aria-label="우주 공간: 클릭 또는 천체 단축키로 소환. 마우스가 공간 밖이면 가장자리에 소환"
+        aria-label="우주 공간: 클릭 또는 천체 단축키로 가장자리에 소환"
         tabIndex={0}
         {...controls}
       />
@@ -952,7 +952,7 @@ function App() {
                     ? autoStage(state) === 2
                       ? "각 천체가 쿨타임마다 자동 생성됩니다. 직접 소환도 가능해요."
                       : "1초마다 각 천체의 쿨타임을 확인해 준비된 천체를 모두 소환합니다. 60개부터 쿨타임 완료 즉시 소환해요."
-                    : "클릭 또는 단축키로 소환하세요. 마우스가 공간 밖이면 가장자리에 소환돼요."}
+                    : "클릭 또는 단축키로 소환하세요. 천체는 우주 공간 가장자리에서 나와요."}
                 </p>
               </div>
             </div>

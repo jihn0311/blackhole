@@ -27,17 +27,19 @@ function harness() {
     time: (n) => (now = n),
   };
 }
-test("number key selects and spawns at the exact pointer, including the center", () => {
+test("number key selects and spawns at the edge even with the pointer at the center", () => {
   const h = harness();
   h.input.move(0.5, 0.47);
   h.input.press("asteroid", "Digit1");
   assert.equal(h.c.selected, "asteroid");
-  assert.deepEqual(h.calls[0], {
-    id: "asteroid",
-    x: 0.5,
-    y: 0.47,
-    quiet: false,
-  });
+  assert.equal(h.calls[0].id, "asteroid");
+  assert.ok(h.calls[0].x >= 0.15 && h.calls[0].x <= 0.85);
+  assert.ok([0.12, 0.85].includes(h.calls[0].y));
+  h.input.release("Digit1");
+  h.time(10000);
+  h.input.press("asteroid", "pointer");
+  assert.equal(h.calls.length, 2);
+  assert.ok([0.12, 0.85].includes(h.calls[1].y));
 });
 test("keyboard spawns at an edge without ever entering the canvas", () => {
   const h = harness();
@@ -90,7 +92,7 @@ test("holding below the final stage never repeats", () => {
   h.input.press("asteroid", "pointer");
   assert.equal(h.calls.length, 2);
 });
-test("final stage repeats at current pointer and respects cooldown and release", () => {
+test("legacy hold repeats at the edge and respects cooldown and release", () => {
   const h = harness();
   h.c.state.upgrades.stream = 10;
   h.input.move(0.1, 0.2);
@@ -101,8 +103,8 @@ test("final stage repeats at current pointer and respects cooldown and release",
   h.input.move(0.8, 0.7);
   h.input.tick();
   assert.equal(h.calls.length, 2);
-  assert.equal(h.calls[1].x, 0.8);
-  assert.equal(h.calls[1].y, 0.7);
+  assert.ok(h.calls[1].x >= 0.15 && h.calls[1].x <= 0.85);
+  assert.ok([0.12, 0.85].includes(h.calls[1].y));
   h.input.release("Digit1");
   h.time(10000);
   h.input.tick();
