@@ -352,20 +352,20 @@ function App() {
   const previousUpgradeCount = useRef(purchasedUpgrades);
   useEffect(() => {
     // The full-tree celebration below owns the sound when bulk buying all 80.
-    if (previousUpgradeCount.current === 0 && purchasedUpgrades > 0 && !overdrive)
+    if (previousUpgradeCount.current === 0 && purchasedUpgrades > 0 && !overdrive && level(state.mass) < 300)
       audioRef.current.playFirstUpgrade();
     previousUpgradeCount.current = purchasedUpgrades;
-  }, [purchasedUpgrades, overdrive]);
+  }, [purchasedUpgrades, overdrive, state.mass]);
   const wasOverdrive = useRef(overdrive);
   useEffect(() => {
     if (overdrive && !wasOverdrive.current) {
       notify(
         "80개 풀강 완료! 특이점 폭주 · 질량 ×10 · 생성 속도 ×2 · 레벨 보상 ×3",
       );
-      audioRef.current.playRebirth();
+      if (level(state.mass) < 300) audioRef.current.playRebirth();
     }
     wasOverdrive.current = overdrive;
-  }, [overdrive]);
+  }, [overdrive, state.mass]);
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
   const [newBodies, setNewBodies] = useState([]);
