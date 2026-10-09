@@ -352,20 +352,20 @@ function App() {
   const previousUpgradeCount = useRef(purchasedUpgrades);
   useEffect(() => {
     // The full-tree celebration below owns the sound when bulk buying all 80.
-    if (previousUpgradeCount.current === 0 && purchasedUpgrades > 0 && !overdrive && level(state.mass) < 300)
+    if (previousUpgradeCount.current === 0 && purchasedUpgrades > 0 && !overdrive)
       audioRef.current.playFirstUpgrade();
     previousUpgradeCount.current = purchasedUpgrades;
-  }, [purchasedUpgrades, overdrive, state.mass]);
+  }, [purchasedUpgrades, overdrive]);
   const wasOverdrive = useRef(overdrive);
   useEffect(() => {
     if (overdrive && !wasOverdrive.current) {
       notify(
         "80개 풀강 완료! 특이점 폭주 · 질량 ×10 · 생성 속도 ×2 · 레벨 보상 ×3",
       );
-      if (level(state.mass) < 300) audioRef.current.playRebirth();
+      audioRef.current.playRebirth();
     }
     wasOverdrive.current = overdrive;
-  }, [overdrive, state.mass]);
+  }, [overdrive]);
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
   const [newBodies, setNewBodies] = useState([]);
@@ -549,7 +549,8 @@ function App() {
       critical = isCritical(before, roll),
       n = update((s) => absorb(s, id, roll));
     audioRef.current.playAbsorb();
-    if (level(n.mass) > level(before.mass)) audioRef.current.playLevelUp();
+    if (level(n.mass) > level(before.mass) && level(n.mass) < 300)
+      audioRef.current.playLevelUp();
     if (discovered(n) === bodies.length && discovered(before) < bodies.length) {
       notify("우주 통달! 영구 질량 ×20 · 포인트 보상 ×3 · 쿨타임 40% 감소");
       audioRef.current.playRebirth();
