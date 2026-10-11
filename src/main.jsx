@@ -289,6 +289,7 @@ function App() {
       hidden: () => document.hidden,
     });
   }
+  const [playClockReset, setPlayClockReset] = useState(0);
   const [playSeconds, setPlaySeconds] = useState(() => {
     try {
       const saved = Number(localStorage.getItem("event-horizon-play-seconds"));
@@ -308,10 +309,16 @@ function App() {
     const timer = setInterval(tick, 1000);
     document.addEventListener("visibilitychange", resetClock);
     return () => { clearInterval(timer); document.removeEventListener("visibilitychange", resetClock); };
-  }, [paused]);
+  }, [paused, playClockReset]);
   useEffect(() => {
     try { localStorage.setItem("event-horizon-play-seconds", String(playSeconds)); } catch {}
   }, [playSeconds]);
+  function restartUniversePresentation() {
+    setPlaySeconds(0);
+    setPlayClockReset((value) => value + 1);
+    try { localStorage.setItem("event-horizon-play-seconds", "0"); } catch {}
+    audioRef.current.restartBackground();
+  }
   const playTime = [Math.floor(playSeconds / 3600), Math.floor(playSeconds / 60) % 60, Math.floor(playSeconds) % 60].map((v) => String(v).padStart(2, "0")).join(":");
   const [soundEnabled, setSoundEnabled] = useState(
     () => audioRef.current.enabled,
@@ -1372,6 +1379,7 @@ function App() {
                 autoFocus
                 onClick={() => {
                   update(() => ({ ...fresh(), unlockedEndings }));
+                  restartUniversePresentation();
                   autoSchedule.current = { lastAt: -Infinity };
                   setSelected("asteroid");
                   setGeneration((g) => g + 1);
@@ -1427,6 +1435,7 @@ function App() {
                 onClick={() => {
                   queue.current = [];
                   update(fresh);
+                  restartUniversePresentation();
                   setAchievementVisible(false);
                   setSelected("asteroid");
                   setResetOpen(false);

@@ -392,6 +392,13 @@ export function createSoundEngine({
       stopScore = undefined;
       startBackground();
     },
+    restartBackground() {
+      creditsRequested = false;
+      stopScore?.(); stopScore = undefined;
+      stopBackground?.(); stopBackground = undefined;
+      this.restoreVolume();
+      startBackground();
+    },
     playSpawn: spawn,
     playAbsorb: absorb,
     playCorruptionBurst: corruptionBurst,
