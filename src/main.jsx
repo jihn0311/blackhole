@@ -193,8 +193,11 @@ function Universe({ state, onAbsorb, queue, paused, controls }) {
         if (!current.paused) s.life += dt;
         ctx.globalAlpha = Math.max(0, 1 - s.life / 1.8);
         ctx.fillStyle = s.critical ? "#ff7b9e" : "#f5c392";
-        ctx.font = `bold ${s.critical ? 26 : 21}px monospace`;
-        ctx.lineWidth = 3;
+        ctx.font = s.critical
+          ? 'italic 900 26px "Arial Black", "Noto Sans KR", sans-serif'
+          : '600 21px "DM Sans", "Noto Sans KR", sans-serif';
+        ctx.lineWidth = s.critical ? 3 : 2;
+        ctx.lineJoin = s.critical ? "miter" : "round";
         ctx.strokeStyle = "#080b12";
         ctx.textAlign = "center";
         const maxWidth = Math.max(1, w - 20);
