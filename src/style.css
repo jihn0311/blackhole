@@ -2618,3 +2618,10 @@ article.body-card:hover {
 .panel-dock > aside { transition: transform .3s ease, opacity .2s, visibility .3s; }
 @media (prefers-reduced-motion: reduce) { .panel-dock > aside { transition: none; } }
 .playback-actions { flex-wrap: wrap; }
+.play-time { display: block; margin-top: 5px; color: #a9c9e8; font-size: 12px; letter-spacing: 1px; font-variant-numeric: tabular-nums; }
+.panel-dock > .left-panel { display: flex; flex-direction: column; }
+.left-panel > * { flex-shrink: 0; }
+.left-panel > .playback { margin-top: auto; padding-top: 22px; border-top: 1px solid var(--border); width: 100%; }
+.left-panel .playback-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.left-panel .playback-actions button { padding: 9px 10px; border: 1px solid #ffffff20; border-radius: 8px; background: #151d2b; font-size: 13px; }
+@media (max-width: 800px) { .play-time { font-size: 10px; letter-spacing: 0; } }

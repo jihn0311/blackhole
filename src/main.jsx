@@ -289,6 +289,30 @@ function App() {
       hidden: () => document.hidden,
     });
   }
+  const [playSeconds, setPlaySeconds] = useState(() => {
+    try {
+      const saved = Number(localStorage.getItem("event-horizon-play-seconds"));
+      return Number.isFinite(saved) && saved >= 0 ? Math.floor(saved) : 0;
+    } catch { return 0; }
+  });
+  useEffect(() => {
+    let last = performance.now();
+    const tick = () => {
+      const next = performance.now();
+      const elapsed = (next - last) / 1000;
+      last = next;
+      if (!document.hidden && !paused && elapsed < 5)
+        setPlaySeconds((value) => value + elapsed);
+    };
+    const resetClock = () => { last = performance.now(); };
+    const timer = setInterval(tick, 1000);
+    document.addEventListener("visibilitychange", resetClock);
+    return () => { clearInterval(timer); document.removeEventListener("visibilitychange", resetClock); };
+  }, [paused]);
+  useEffect(() => {
+    try { localStorage.setItem("event-horizon-play-seconds", String(playSeconds)); } catch {}
+  }, [playSeconds]);
+  const playTime = [Math.floor(playSeconds / 3600), Math.floor(playSeconds / 60) % 60, Math.floor(playSeconds) % 60].map((v) => String(v).padStart(2, "0")).join(":");
   const [soundEnabled, setSoundEnabled] = useState(
     () => audioRef.current.enabled,
   );
@@ -689,6 +713,7 @@ function App() {
           <span className="brand-mark">◉</span>
           <span>
             EVENT HORIZON<small>블랙홀 키우기</small>
+            <span className="play-time" aria-label={`누적 플레이 시간 ${playTime}`}>PLAY TIME {playTime}</span>
           </span>
         </a>
         <nav aria-label="메인 메뉴">
@@ -741,14 +766,7 @@ function App() {
         <div className="header-status">
           <span className="status-dot" />
           {saveError ? "저장 공간 확인 필요" : "자동 저장 중"}
-          <button
-            className="icon-button"
-            title="게임 초기화"
-            aria-label="게임 초기화"
-            onClick={() => setResetOpen(true)}
-          >
-            ↺
-          </button>
+
         </div>
       </header>
       <main className={`game-layout ${leftCollapsed ? "left-collapsed" : ""} ${rightCollapsed ? "right-collapsed" : ""}`}>
@@ -915,6 +933,49 @@ function App() {
             <br />
             실제 천체 정보는 도감에서 확인하세요.
           </p>
+            <div className="playback">
+              <div className="playback-actions">
+                <button
+                  className="sound-toggle"
+                  aria-label={soundEnabled ? "소리 끄기" : "소리 켜기"}
+                  aria-pressed={soundEnabled}
+                  onClick={() => {
+                    const next = !audioRef.current.enabled;
+                    audioRef.current.setEnabled(next);
+                    setSoundEnabled(next);
+                  }}
+                >
+                  {soundEnabled ? "♪ 소리 켜짐" : "♪ 소리 꺼짐"}
+                </button>
+                <button
+                  className="sound-toggle"
+                  aria-label={effectsEnabled ? "효과음만 끄기" : "효과음 켜기"}
+                  aria-pressed={effectsEnabled}
+                  title="배경음악은 유지하고 효과음만 켜거나 끕니다"
+                  onClick={() => {
+                    const next = !audioRef.current.effectsEnabled;
+                    audioRef.current.setEffectsEnabled(next);
+                    setEffectsEnabled(next);
+                  }}
+                >
+                  {effectsEnabled ? "효과음 켜짐" : "효과음 꺼짐"}
+                </button>
+                <button
+                  onClick={() => setPaused((p) => !p)}
+                  aria-label={paused ? "계속하기" : "일시정지"}
+                >
+                  {paused ? "▶ 계속하기" : "Ⅱ 일시정지"}
+                </button>
+          <button
+            className="reset-control"
+            title="게임 초기화"
+            aria-label="게임 초기화"
+            onClick={() => setResetOpen(true)}
+          >
+            ↺ 초기화
+          </button>
+              </div>
+            </div>
         </aside>
         </div>
         <section
@@ -971,41 +1032,7 @@ function App() {
                 </p>
               </div>
             </div>
-            <div className="playback">
-              <div className="playback-actions">
-                <button
-                  className="sound-toggle"
-                  aria-label={soundEnabled ? "소리 끄기" : "소리 켜기"}
-                  aria-pressed={soundEnabled}
-                  onClick={() => {
-                    const next = !audioRef.current.enabled;
-                    audioRef.current.setEnabled(next);
-                    setSoundEnabled(next);
-                  }}
-                >
-                  {soundEnabled ? "♪ 소리 켜짐" : "♪ 소리 꺼짐"}
-                </button>
-                <button
-                  className="sound-toggle"
-                  aria-label={effectsEnabled ? "효과음만 끄기" : "효과음 켜기"}
-                  aria-pressed={effectsEnabled}
-                  title="배경음악은 유지하고 효과음만 켜거나 끕니다"
-                  onClick={() => {
-                    const next = !audioRef.current.effectsEnabled;
-                    audioRef.current.setEffectsEnabled(next);
-                    setEffectsEnabled(next);
-                  }}
-                >
-                  {effectsEnabled ? "효과음 켜짐" : "효과음 꺼짐"}
-                </button>
-                <button
-                  onClick={() => setPaused((p) => !p)}
-                  aria-label={paused ? "계속하기" : "일시정지"}
-                >
-                  {paused ? "▶ 계속하기" : "Ⅱ 일시정지"}
-                </button>
-              </div>
-            </div>
+
           </div>
         </section>
         <div className="panel-dock dock-right">
