@@ -416,7 +416,7 @@ function App() {
       ...(state.endingSeen ? [state.endingType || "normal"] : []),
     ]),
   ];
-  const happyAvailable = happyEndingUnlocked(unlockedEndings);
+  const happyAvailable = happyEndingUnlocked(unlockedEndings) && !state.endingSeen;
   const [happyEnding, setHappyEnding] = useState(false);
   function startHappyEnding() {
     if (!happyAvailable) return;
@@ -1434,7 +1434,7 @@ function App() {
           >
             <h2>새로운 우주를 시작할까요?</h2>
             <p>
-              환생과는 달리 모든 기록을 삭제합니다. 질량, 도감, 업그레이드,
+              해금한 엔딩 기록은 유지됩니다. 질량, 도감, 업그레이드,
               미션, 환생 횟수, 최고 기록과 특이점 조각까지 초기화됩니다.
             </p>
             <div>
@@ -1445,7 +1445,7 @@ function App() {
                 className="danger"
                 onClick={() => {
                   queue.current = [];
-                  update(fresh);
+                  update(() => ({ ...fresh(), unlockedEndings }));
                   restartUniversePresentation();
                   setAchievementVisible(false);
                   setSelected("asteroid");
