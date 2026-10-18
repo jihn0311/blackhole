@@ -2664,3 +2664,17 @@ article.body-card:hover {
 .is-open .safety-cover { transform: rotateX(125deg); background: #8bb5cf44; }
 .is-open .safety-cover span { transform: rotateX(180deg); }
 @media(prefers-reduced-motion: reduce) { .safety-cover { transition: none; } }
+.happy-research-banner { position: relative; z-index: 12; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px 24px; padding: 14px 20px; background: linear-gradient(110deg,#103c4b,#225344,#172e49); border: 1px solid #87eddf; box-shadow: 0 0 22px #65e4d53d; color: #eafff7; }
+.happy-research-banner strong { font-size: 18px; }
+.happy-research-banner p { margin: 4px 0 0; font-size: 13px; }
+.happy-research-banner button, .happy-research-start { background: #b5f5e7; color: #102e32; font-weight: 800; padding: 12px 20px; border-radius: 8px; }
+.happy-escape { position: fixed; inset: 0; z-index: 9999; background: radial-gradient(ellipse at center,#123648,#040a16 70%); overflow: hidden; display: grid; place-items: center; }
+.happy-escape img { width: min(850px,90vw); mix-blend-mode: screen; animation: happy-recede 12s ease-in-out forwards; }
+.happy-stars { position: absolute; inset: 0; background-image: radial-gradient(circle,#c7fff2 1px,transparent 2px),radial-gradient(circle,#a1daff 1px,transparent 2px); background-size: 83px 97px,151px 139px; animation: happy-starlight 12s ease-out forwards; }
+.happy-transmission { position: absolute; bottom: 12%; width: 90%; text-align: center; color: #d7fff4; animation: happy-message 12s both; }
+.happy-transmission small { letter-spacing: 3px; color: #97d6df; }
+.happy-transmission p { line-height: 2; font-size: 20px; }
+@keyframes happy-recede { 0% { transform: scale(1.1); filter: hue-rotate(0deg); } 45% { filter: hue-rotate(155deg); } 100% { transform: scale(.12) translateY(-300px); filter: hue-rotate(155deg); opacity: .5; } }
+@keyframes happy-starlight { from { opacity: 0; transform: scale(.7); } to { opacity: 1; transform: scale(1.1); } }
+@keyframes happy-message { 0%,25% { opacity: 0; } 50%,100% { opacity: 1; } }
+@media(prefers-reduced-motion: reduce) { .happy-escape img { animation: none; width: 25vw; filter: hue-rotate(155deg); } .happy-stars,.happy-transmission { animation: none; } }

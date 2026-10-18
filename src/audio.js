@@ -374,7 +374,7 @@ export function createSoundEngine({
       master.gain.setTargetAtTime(enabled ? 0.4 : 0, t, 0.2);
     },
     playCredits(variant = "normal") {
-      const selected = ["hacking", "survivor"].includes(variant)
+      const selected = variant === "happy" ? "survivor" : ["hacking", "survivor"].includes(variant)
         ? variant
         : "normal";
       if (selected !== creditsVariant) {

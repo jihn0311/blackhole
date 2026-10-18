@@ -681,7 +681,7 @@ export function restore(d, now = Date.now()) {
     clean.cheatUsed = s.cheatUsed === true;
     clean.survivorDisqualified = s.survivorDisqualified === true;
     clean.endingType = clean.endingSeen
-      ? ["hacking", "survivor"].includes(s.endingType)
+      ? ["hacking", "survivor", "happy"].includes(s.endingType)
         ? s.endingType
         : "normal"
       : null;
@@ -690,7 +690,7 @@ export function restore(d, now = Date.now()) {
         ...(Array.isArray(s.unlockedEndings) ? s.unlockedEndings : []),
         ...(clean.endingSeen ? [clean.endingType] : []),
       ]),
-    ].filter((id) => ["normal", "hacking", "survivor"].includes(id));
+    ].filter((id) => ["normal", "hacking", "survivor", "happy"].includes(id));
     clean.shards = s.shards ?? 0;
     if (!int(s.singularityDepth ?? 0)) return fresh();
     clean.singularityDepth = s.singularityDepth ?? 0;

@@ -1,3 +1,4 @@
+import { HappyEscape, HappyCredits } from "./HappyEnding.jsx";
 import { DigitalCorruption } from "./DigitalCorruption.jsx";
 import { SurvivorEscape, SurvivorCredits } from "./SurvivorEnding.jsx";
 import { HackingEnding, HackingCredits } from "./HackingEnding.jsx";
@@ -41,7 +42,7 @@ export function CosmicEnding({
     }
     const timer = setTimeout(
       () => setShattered(true),
-      variant === "survivor" ? 60000 : 6500,
+      variant === "happy" ? 12000 : variant === "survivor" ? 60000 : 6500,
     );
     return () => clearTimeout(timer);
   }, [ended, replay, variant]);
@@ -67,7 +68,7 @@ export function CosmicEnding({
   if (!stage) return null;
   return createPortal(
     ended && !creditsReady ? (
-      variant === "survivor" ? (
+      variant === "happy" ? (<HappyEscape />) : variant === "survivor" ? (
         <SurvivorEscape />
       ) : variant === "hacking" ? (
         <HackingEnding />
@@ -114,7 +115,7 @@ export function CosmicEnding({
               className="credits-roll"
               onAnimationEnd={onComplete}
             >
-              {variant === "survivor" ? (
+              {variant === "happy" ? (<HappyCredits />) : variant === "survivor" ? (
                 <SurvivorCredits />
               ) : variant === "hacking" ? (
                 <HackingCredits />

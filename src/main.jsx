@@ -1,3 +1,4 @@
+import { happyEndingUnlocked } from "./happyEnding.js";
 import { StoryIntro } from "./StoryIntro.jsx";
 import { StoryWarning } from "./StoryWarning.jsx";
 import { survivorEligible } from "./survivorEligibility.js";
@@ -415,9 +416,18 @@ function App() {
       ...(state.endingSeen ? [state.endingType || "normal"] : []),
     ]),
   ];
+  const happyAvailable = happyEndingUnlocked(unlockedEndings);
+  const [happyEnding, setHappyEnding] = useState(false);
+  function startHappyEnding() {
+    if (!happyAvailable) return;
+    audioRef.current.unlock();
+    queue.current = [];
+    setTab("play");
+    setHappyEnding(true);
+  }
   const endingsAvailable = unlockedEndings.length > 0;
   const [survivorEnding, setSurvivorEnding] = useState(false);
-  const canSurvive = !introOpen && survivorEligible(state);
+  const canSurvive = !happyEnding && !introOpen && survivorEligible(state);
   useEffect(() => {
     if (!canSurvive || survivorEnding || creditsReplay) return;
     const timer = setTimeout(() => {
@@ -428,7 +438,7 @@ function App() {
     return () => clearTimeout(timer);
   }, [canSurvive, generation, survivorEnding, creditsReplay]);
   const ended =
-    survivorEnding ||
+    happyEnding || survivorEnding ||
     creditsReplay ||
     (!state.endingSeen && endingReached(progress.level));
   useEffect(() => {
@@ -441,19 +451,19 @@ function App() {
       audioRef.current.playCredits(
         creditsReplay
           ? replayVariant
-          : survivorEnding
+          : happyEnding ? "happy" : survivorEnding
             ? "survivor"
             : state.cheatUsed
               ? "hacking"
               : "normal",
       );
-      if (!creditsReplay && !survivorEnding) audioRef.current.fadeShatter();
+      if (!creditsReplay && !survivorEnding && !happyEnding) audioRef.current.fadeShatter();
     } else audioRef.current.stopCredits();
     return () => {
       audioRef.current.stopCredits();
       audioRef.current.restoreVolume();
     };
-  }, [ended, creditsReplay, replayVariant, survivorEnding, state.cheatUsed]);
+  }, [ended, creditsReplay, replayVariant, survivorEnding, happyEnding, state.cheatUsed]);
   const lv = progress.level,
     catalog = discovered(state),
     mission = missions[state.mission],
@@ -556,7 +566,7 @@ function App() {
     notify,
   });
   function onAbsorb(id) {
-    if (creditsReplay || survivorEnding) return { mass: 0, critical: false };
+    if (happyEnding || creditsReplay || survivorEnding) return { mass: 0, critical: false };
     if (!live.current.endingSeen && endingReached(level(live.current.mass)))
       return { mass: 0, critical: false };
     const before = live.current,
@@ -641,15 +651,15 @@ function App() {
       }}
       inert={ended || introOpen ? true : undefined}
     >
-      {(!state.endingSeen || creditsReplay) && (
+      {(!state.endingSeen || creditsReplay || happyEnding) && (
         <CosmicEnding
-          key={creditsReplay ? `replay-${replayVariant}` : "live-ending"}
-          level={creditsReplay || survivorEnding ? 400 : lv}
+          key={happyEnding ? "happy-ending" : creditsReplay ? `replay-${replayVariant}` : "live-ending"}
+          level={happyEnding || creditsReplay || survivorEnding ? 400 : lv}
           replay={creditsReplay}
           variant={
             creditsReplay
               ? replayVariant
-              : survivorEnding
+              : happyEnding ? "happy" : survivorEnding
                 ? "survivor"
                 : state.cheatUsed
                   ? "hacking"
@@ -660,10 +670,11 @@ function App() {
           onComplete={() => {
             const firstEnding = !creditsReplay && !state.endingSeen;
             setCreditsReplay(false);
+            setHappyEnding(false);
             setSurvivorEnding(false);
             if (!creditsReplay)
               update((s) => {
-                const kind = survivorEnding
+                const kind = happyEnding ? "happy" : survivorEnding
                   ? "survivor"
                   : s.cheatUsed
                     ? "hacking"
@@ -682,7 +693,7 @@ function App() {
             setPaused(false);
             setToast("");
             if (firstEnding) {
-              if (!state.cheatUsed && !survivorEnding)
+              if (!state.cheatUsed && !survivorEnding && !happyEnding)
                 setAchievementVisible(true);
               audioRef.current.playRebirth();
             }
@@ -759,6 +770,10 @@ function App() {
 
         </div>
       </header>
+      {happyAvailable && !ended && !introOpen && <section className="happy-research-banner" aria-label="해피엔딩 연구 해금">
+        <div><strong>✦ 역합성 연구 해금 — 돌아온 별빛</strong><p>세 엔딩의 기록이 모였습니다. 이번에는 모두가 돌아갈 방법을 찾으세요.</p></div>
+        <button onClick={startHappyEnding}>역합성 실행 · 해피엔딩 시작 →</button>
+      </section>}
       <main className={`game-layout ${leftCollapsed ? "left-collapsed" : ""} ${rightCollapsed ? "right-collapsed" : ""}`}>
         <div className="panel-dock dock-left">
           <button className="panel-toggle" aria-label={leftCollapsed ? "질량·미션 펼치기" : "질량·미션 접기"} aria-expanded={!leftCollapsed} aria-controls="report-panel" onClick={() => setLeftCollapsed((v) => !v)}>
@@ -1173,7 +1188,7 @@ function App() {
             <button onClick={closeEndings}>닫기</button>
             <h2>엔딩 종류</h2>
             <p className="ending-gallery-intro">
-              세 가지 선택, 서로 다른 우주의 끝.
+              네 가지 선택, 그리고 돌아갈 수 있는 우주.
             </p>
             <div className="ending-gallery">
               {[
@@ -1198,8 +1213,12 @@ function App() {
                   subtitle: "가장 조용한 선택",
                   hint: "아무것도 하지마세요",
                 },
+                { id: "happy", number: "04", name: "해피엔딩", subtitle: "돌아온 별빛", hint: "일반·치트·생존자 엔딩을 모두 감상하세요" },
               ].map((ending) => {
                 const unlocked = unlockedEndings.includes(ending.id);
+                const mysterious = ending.id === "happy";
+                const glyphs = (text) => Array.from(text, (char, index) => /\s/.test(char) ? char : ["□", "■", "◻", "■"][index % 4]).join("");
+                const display = (text) => mysterious ? glyphs(text) : text;
                 return (
                   <article
                     key={ending.id}
@@ -1208,24 +1227,25 @@ function App() {
                     }
                   >
                     <div className="ending-tile-top">
-                      <span>ENDING {ending.number}</span>
-                      <b>{unlocked ? "해금 완료" : "🔒 미해금"}</b>
+                      <span>{display(`ENDING ${ending.number}`)}</span>
+                      <b>{display(unlocked ? "해금 완료" : "미해금")}</b>
                     </div>
-                    <h3>{ending.name}</h3>
-                    <p className="ending-tile-subtitle">{ending.subtitle}</p>
+                    <h3>{display(ending.name)}</h3>
+                    <p className="ending-tile-subtitle">{display(ending.subtitle)}</p>
                     <div className="ending-tile-hint">
-                      <strong>해금 힌트</strong>
-                      <p>{ending.hint}</p>
+                      <strong>{display("해금 힌트")}</strong>
+                      <p>{display(ending.hint)}</p>
                     </div>
                     <button
-                      disabled={!unlocked}
+                      disabled={!unlocked && !(ending.id === "happy" && happyAvailable)}
                       onClick={() => {
+                        if (ending.id === "happy" && !unlocked) { startHappyEnding(); return; }
                         audioRef.current.unlock();
                         setReplayVariant(ending.id);
                         setCreditsReplay(true);
                       }}
                     >
-                      {unlocked ? "엔딩 연출부터 다시 보기" : "잠겨 있음"}
+                      {display(unlocked ? "엔딩 연출부터 다시 보기" : ending.id === "happy" && happyAvailable ? "역합성 연구 실행" : "잠겨 있음")}
                     </button>
                   </article>
                 );
