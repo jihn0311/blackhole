@@ -770,10 +770,7 @@ function App() {
 
         </div>
       </header>
-      {happyAvailable && !ended && !introOpen && <section className="happy-research-banner" aria-label="해피엔딩 연구 해금">
-        <div><strong>✦ 역합성 연구 해금 — 돌아온 별빛</strong><p>세 엔딩의 기록이 모였습니다. 이번에는 모두가 돌아갈 방법을 찾으세요.</p></div>
-        <button onClick={startHappyEnding}>역합성 실행 · 해피엔딩 시작 →</button>
-      </section>}
+
       <main className={`game-layout ${leftCollapsed ? "left-collapsed" : ""} ${rightCollapsed ? "right-collapsed" : ""}`}>
         <div className="panel-dock dock-left">
           <button className="panel-toggle" aria-label={leftCollapsed ? "질량·미션 펼치기" : "질량·미션 접기"} aria-expanded={!leftCollapsed} aria-controls="report-panel" onClick={() => setLeftCollapsed((v) => !v)}>
@@ -1012,6 +1009,12 @@ function App() {
               resetOpen
             }
           />
+          {happyAvailable && !ended && !introOpen && (
+            <button className="happy-center-button" onClick={startHappyEnding}>
+              <span>✦ 역합성 연구</span>
+              <strong>해피엔딩 시작</strong>
+            </button>
+          )}
           <div className="coordinate">
             RA 17h 45m · DEC −29° 00′ <span>SIMULATION 01</span>
           </div>

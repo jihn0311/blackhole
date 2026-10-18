@@ -2678,3 +2678,7 @@ article.body-card:hover {
 @keyframes happy-starlight { from { opacity: 0; transform: scale(.7); } to { opacity: 1; transform: scale(1.1); } }
 @keyframes happy-message { 0%,25% { opacity: 0; } 50%,100% { opacity: 1; } }
 @media(prefers-reduced-motion: reduce) { .happy-escape img { animation: none; width: 25vw; filter: hue-rotate(155deg); } .happy-stars,.happy-transmission { animation: none; } }
+.happy-center-button { position: absolute; left: 50%; top: 47%; transform: translate(-50%,-50%); z-index: 15; display: flex; flex-direction: column; gap: 7px; align-items: center; padding: 18px 25px; min-width: 180px; border: 1px solid #a9fff0; border-radius: 14px; color: #e4fff9; background: #0b2837ed; box-shadow: 0 0 28px #69e3d666, inset 0 0 20px #69e3d61a; }
+.happy-center-button span { font-size: 12px; letter-spacing: 2px; color: #a1e7d8; }
+.happy-center-button strong { font-size: 19px; }
+.happy-center-button:hover { background: #17434f; box-shadow: 0 0 38px #69e3d688; }
