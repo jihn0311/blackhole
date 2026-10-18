@@ -25,9 +25,9 @@ export function SurvivorEscape() {
         alt="점점 멀어지는 블랙홀"
       />
       <p>
-        아무것도 삼키지 않았기에,
+        공급 명령 미입력 · 비상 철수 개시
         <br />
-        당신은 삼켜지지 않았습니다.
+        관측소가 사건의 지평선에서 벗어납니다.
       </p>
     </div>
   );
@@ -41,25 +41,25 @@ export function SurvivorCredits() {
       <div className="credits-chapter">
         <h2>당신은 기다렸습니다.</h2>
         <p>
-          첫 소행성을 부르지 않았고,
+          당신은 첫 인공 천체를 공급하지 않았고,
           <br />
-          어떤 별의 이름도 지우지 않았습니다.
+          2분 뒤 비상 철수 장치가 작동했습니다.
         </p>
       </div>
       <div className="credits-chapter">
         <h2>멀어지는 빛</h2>
         <p>
-          끝없는 허기를 채우는 대신
+          공급 임무를 끝내 수행하지 않은 채
           <br />
           당신은 사건의 지평선에서 물러났습니다.
         </p>
       </div>
       <div className="credits-chapter">
-        <h2>아무것도 얻지 않은 사람</h2>
+        <h2>임무는 미완료로 남았습니다.</h2>
         <p>
-          그래서 모든 것을 잃지 않은 사람.
+          당신은 살아남았습니다.
           <br />
-          우주는 여전히 그곳에 있습니다.
+          하지만 태양계의 운명은 알 수 없습니다.
         </p>
       </div>
       <div className="credits-chapter">

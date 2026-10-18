@@ -75,25 +75,25 @@ export function HackingCredits() {
         <h2>입력한 세 글자</h2>
         <p>jis</p>
         <p>
-          기다림은 지워졌고, 숫자는 넘쳐났습니다.
+          금지 명령은 합성 장치의 안전 제한을 해제했습니다.
           <br />
-          하지만 기록은 당신의 입력을 기억했습니다.
+          당신은 경고보다 빠른 성장을 선택했습니다.
         </p>
       </div>
       <div className="credits-chapter">
         <h2>결과를 고친 대가</h2>
         <p>
-          별을 발견하는 대신 값을 바꾸었습니다.
+          장치는 인공 천체와 현실을 구분하지 못했습니다.
           <br />
-          성장을 건너뛰자, 도착할 우주도 사라졌습니다.
+          관측소와 당신마저 합성 가능한 데이터가 되었습니다.
         </p>
       </div>
       <div className="credits-chapter">
-        <h2>승리 기록: 검증 실패</h2>
+        <h2>변환 대상: 운용자</h2>
         <p>
-          400이라는 숫자는 남았습니다.
+          초록색 숫자 사이에 당신의 기록이 남았습니다.
           <br />
-          그곳까지의 여정은 남아 있나요?
+          제한을 지운 대가로, 돌아갈 현실을 잃었습니다.
         </p>
       </div>
       <div className="credits-chapter">
@@ -102,7 +102,7 @@ export function HackingCredits() {
       </div>
       <div className="credits-chapter credits-last">
         <h2>이번 결말은 당신이 덮어썼습니다.</h2>
-        <p>다음 우주에서는, 과정을 남겨 주세요.</p>
+        <p>다음 우주에서는, 경고에 귀를 기울여 주세요.</p>
         <span>CONNECTION TERMINATED</span>
       </div>
     </>

@@ -130,27 +130,27 @@ export function CosmicEnding({
                   </h1>
                   <p className="credits-subtitle">마지막 빛이 사라진 자리</p>
                   <div className="credits-chapter">
-                    <p>처음에는 작은 소행성 하나였습니다.</p>
+                    <p>처음에는 태양계를 구하기 위한 임무였습니다.</p>
                     <p>
-                      행성을 지나 별을 삼키고,
+                      우리는 인공 천체를 공급했고,
                       <br />
-                      다시 태어나 더 먼 우주로 나아갔습니다.
+                      블랙홀은 멈추는 대신 더 빠르게 성장했습니다.
                     </p>
                   </div>
                   <div className="credits-chapter">
                     <span>THE OBSERVER</span>
-                    <h2>관측자</h2>
-                    <p>끝까지 우주를 바라본 당신</p>
+                    <h2>마지막 운용자</h2>
+                    <p>끝까지 공급 명령을 수행한 당신</p>
                   </div>
                   <div className="credits-chapter">
                     <span>THE JOURNEY</span>
-                    <h2>발견 · 성장 · 환생</h2>
+                    <h2>구원이라고 믿었던 것</h2>
                     <p>
-                      열다섯 개의 천체
+                      열다섯 종류의 인공 천체
                       <br />
-                      여든 개의 성장
+                      여든 번의 장치 강화
                       <br />
-                      그리고 네 번의 백 번째 지평선
+                      우리는 재앙을 완성하고 있었습니다.
                     </p>
                   </div>
                   <div className="credits-chapter">
@@ -164,15 +164,15 @@ export function CosmicEnding({
                     <span>SPECIAL THANKS</span>
                     <h2>이 우주에 머물러 준 당신에게</h2>
                     <p>
-                      모든 빛이 사라져도
+                      마지막 공급이 끝나자 관측소가 무너졌습니다.
                       <br />
-                      당신이 남긴 발견은 사라지지 않습니다.
+                      구하려 했던 우주와 함께, 당신도 삼켜졌습니다.
                     </p>
                   </div>
                   <div className="credits-chapter credits-last">
-                    <h2>관측을 마칩니다.</h2>
+                    <h2>우주에 삼켜진 자</h2>
                     <p>THANK YOU FOR PLAYING</p>
-                    <span>끝은 또 다른 시작.</span>
+                    <span>블랙홀에 영원히 갇혔습니다.</span>
                   </div>
                 </>
               )}

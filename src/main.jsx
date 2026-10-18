@@ -1,3 +1,4 @@
+import { StoryWarning } from "./StoryWarning.jsx";
 import { survivorEligible } from "./survivorEligibility.js";
 import { AchievementToast } from "./AchievementToast.jsx";
 import { CosmicEnding } from "./CosmicEnding.jsx";
@@ -708,6 +709,7 @@ function App() {
           }}
         />
       )}
+      <StoryWarning level={lv} cheat={state.cheatUsed} ended={ended || state.endingSeen} generation={generation} />
       <header>
         <a
           className="brand"
@@ -791,7 +793,8 @@ function App() {
             <br />
             무한한 가능성.
           </h1>
-          <p className="intro">천체를 흡수하고, 우주를 발견하세요.</p>
+          <p className="intro">인공 천체를 공급해 태양계를 지키세요.</p>
+          <p className="mission-brief">사건의 지평선 계획의 운용자로 파견되었습니다. 태양계 외곽의 블랙홀에 인공 천체를 공급해 접근을 늦추세요. 지구와 목성도 실제 행성이 아닌 합성 복제체입니다.</p>
           <section className="stats">
             <div className="stat-label">
               블랙홀 질량 <span>GAME MASS</span>
