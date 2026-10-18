@@ -2647,3 +2647,7 @@ article.body-card:hover {
 .intro-next span { margin-left: 16px; }
 .intro-page { position: fixed; bottom: 40px; right: 32px; color: #8d9db3; }
 @media(max-width: 600px) { .story-intro { padding: 16px 16px 90px; } .comic-caption { padding: 16px; } .comic-caption p { font-size: 14px; } .comic-caption h1 { font-size: 22px; } }
+.comic-art-frame { position: relative; overflow: hidden; margin: 0 auto; background: #080c15; }
+.comic-art-frame img { position: absolute; display: block; width: 200%; max-width: none; height: auto; }
+.intro-comic { background: #0b111d; box-shadow: 0 20px 100px #000b; border-color: #60728a; }
+.comic-caption { border-top: 1px solid #768ba14d; background: linear-gradient(120deg,#172338,#0c1422); }

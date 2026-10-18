@@ -274,10 +274,10 @@ function App() {
     [saveError, setSaveError] = useState(false),
     [generation, setGeneration] = useState(0);
   const [introOpen, setIntroOpen] = useState(() => {
-    try { return localStorage.getItem("event-horizon-intro-v2") !== "seen"; } catch { return true; }
+    try { return localStorage.getItem("event-horizon-intro-v3") !== "seen"; } catch { return true; }
   });
   function finishIntro() {
-    try { localStorage.setItem("event-horizon-intro-v2", "seen"); } catch {}
+    try { localStorage.setItem("event-horizon-intro-v3", "seen"); } catch {}
     setIntroOpen(false);
   }
   const [achievementVisible, setAchievementVisible] = useState(false);
