@@ -2636,3 +2636,14 @@ article.body-card:hover {
 @keyframes story-warning-blink { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
 @media (prefers-reduced-motion: reduce) { .story-warning-frame { animation: none; } }
 .mission-brief { font-size: 13px; line-height: 1.8; color: #94a4ba; padding: 12px 0; }
+.story-intro { position: fixed; inset: 0; z-index: 10000; background: #050810; display: flex; align-items: center; justify-content: center; padding: 30px 30px 95px; overflow-y: auto; }
+.intro-comic { width: min(960px, 100%); border: 1px solid #51647d; background: #111a29; box-shadow: 12px 12px 0 #203044; }
+.comic-chapter { padding: 12px 24px; color: #e9bd87; font: bold 13px monospace; letter-spacing: 3px; border-bottom: 1px solid #51647d; }
+.intro-comic svg { display: block; width: 100%; max-height: 48vh; border-bottom: 3px solid #8594a7; }
+.comic-caption { padding: 20px 28px; }
+.comic-caption h1 { margin: 0 0 10px; font-size: 27px; color: #f0d3aa; }
+.comic-caption p { margin: 0; line-height: 1.9; font-size: 17px; color: #e0e6ee; }
+.intro-next { position: fixed; bottom: 25px; left: 28px; color: #f0d3aa; border: 1px solid #b39a79; padding: 12px 18px; border-radius: 6px; background: #121a27; }
+.intro-next span { margin-left: 16px; }
+.intro-page { position: fixed; bottom: 40px; right: 32px; color: #8d9db3; }
+@media(max-width: 600px) { .story-intro { padding: 16px 16px 90px; } .comic-caption { padding: 16px; } .comic-caption p { font-size: 14px; } .comic-caption h1 { font-size: 22px; } }

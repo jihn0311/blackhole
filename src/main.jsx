@@ -1,3 +1,4 @@
+import { StoryIntro } from "./StoryIntro.jsx";
 import { StoryWarning } from "./StoryWarning.jsx";
 import { survivorEligible } from "./survivorEligibility.js";
 import { AchievementToast } from "./AchievementToast.jsx";
@@ -272,6 +273,13 @@ function App() {
     [resetOpen, setResetOpen] = useState(false),
     [saveError, setSaveError] = useState(false),
     [generation, setGeneration] = useState(0);
+  const [introOpen, setIntroOpen] = useState(() => {
+    try { return localStorage.getItem("event-horizon-intro-v1") !== "seen"; } catch { return true; }
+  });
+  function finishIntro() {
+    try { localStorage.setItem("event-horizon-intro-v1", "seen"); } catch {}
+    setIntroOpen(false);
+  }
   const [achievementVisible, setAchievementVisible] = useState(false);
   const dismissAchievement = useCallback(
     () => setAchievementVisible(false),
@@ -303,14 +311,14 @@ function App() {
       const next = performance.now();
       const elapsed = (next - last) / 1000;
       last = next;
-      if (!document.hidden && !paused && elapsed < 5)
+      if (!document.hidden && !paused && !introOpen && elapsed < 5)
         setPlaySeconds((value) => value + elapsed);
     };
     const resetClock = () => { last = performance.now(); };
     const timer = setInterval(tick, 1000);
     document.addEventListener("visibilitychange", resetClock);
     return () => { clearInterval(timer); document.removeEventListener("visibilitychange", resetClock); };
-  }, [paused, playClockReset]);
+  }, [paused, playClockReset, introOpen]);
   useEffect(() => {
     try { localStorage.setItem("event-horizon-play-seconds", String(playSeconds)); } catch {}
   }, [playSeconds]);
@@ -437,7 +445,7 @@ function App() {
   ];
   const endingsAvailable = unlockedEndings.length > 0;
   const [survivorEnding, setSurvivorEnding] = useState(false);
-  const canSurvive = survivorEligible(state);
+  const canSurvive = !introOpen && survivorEligible(state);
   useEffect(() => {
     if (!canSurvive || survivorEnding || creditsReplay) return;
     const timer = setTimeout(() => {
@@ -539,7 +547,7 @@ function App() {
   }
   function spawn(id, x, y, auto = false, quiet = false) {
     if (
-      ended ||
+      introOpen || ended ||
       paused ||
       (tab !== "play" && tab !== "upgrades") ||
       resetOpen
@@ -569,7 +577,7 @@ function App() {
     state,
     selected,
     enabled:
-      !ended && !paused && (tab === "play" || tab === "upgrades") && !resetOpen,
+      !introOpen && !ended && !paused && (tab === "play" || tab === "upgrades") && !resetOpen,
     allowHold: false,
     onSelect: setSelected,
     onSpawn: spawn,
@@ -606,7 +614,7 @@ function App() {
     return () => clearInterval(timer);
   }, []);
   useEffect(() => {
-    if (ended || paused || (tab !== "play" && tab !== "upgrades") || resetOpen)
+    if (introOpen || ended || paused || (tab !== "play" && tab !== "upgrades") || resetOpen)
       return;
     const available = autoCandidates(live.current, now, autoSchedule.current);
     if (
@@ -659,7 +667,7 @@ function App() {
       style={{
         "--glitch": state.endingSeen ? 0 : Math.min(10, collapseStage(lv)),
       }}
-      inert={ended ? true : undefined}
+      inert={ended || introOpen ? true : undefined}
     >
       {(!state.endingSeen || creditsReplay) && (
         <CosmicEnding
@@ -709,6 +717,7 @@ function App() {
           }}
         />
       )}
+      {introOpen && <StoryIntro onComplete={finishIntro} />}
       <StoryWarning level={lv} cheat={state.cheatUsed} ended={ended || state.endingSeen} generation={generation} />
       <header>
         <a
@@ -1010,7 +1019,7 @@ function App() {
             queue={queue}
             controls={controls}
             paused={
-              ended ||
+              introOpen || ended ||
               paused ||
               (tab !== "play" && tab !== "upgrades") ||
               resetOpen
