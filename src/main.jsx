@@ -347,49 +347,21 @@ function App() {
     queue = useRef([]),
     toastTimer = useRef();
   live.current = state;
-  useEffect(() => {
-    if (tab !== "codex") return;
-    let code = "",
-      lastKeyAt = 0;
-    const onCode = (event) => {
-      if (
-        event.repeat ||
-        event.isComposing ||
-        event.ctrlKey ||
-        event.altKey ||
-        event.metaKey
-      )
-        return;
-      if (
-        event.target instanceof Element &&
-        event.target.closest('input, textarea, [contenteditable="true"]')
-      )
-        return;
-      if (event.key.length !== 1) {
-        code = "";
-        return;
-      }
-      const now = Date.now();
-      if (now - lastKeyAt > 2000) code = "";
-      lastKeyAt = now;
-      code = (code + event.key.toLowerCase()).slice(-3);
-      if (code !== "jis") return;
-      code = "";
-      update((current) => ({
-        ...current,
-        cheatUsed: true,
-        rebirths: Math.max(3, current.rebirths || 0),
-        shards: (current.shards || 0) + 10000000,
-        points: (current.points || 0) + 10000,
-      }));
-      notify(
-        "치트 적용 · 환생 최소 3회 · 특이점 조각 +10,000,000 · 업그레이드 포인트 +10,000",
-      );
-      audioRef.current.playUnlock();
-    };
-    window.addEventListener("keydown", onCode);
-    return () => window.removeEventListener("keydown", onCode);
-  }, [tab]);
+  const [safetyOpen, setSafetyOpen] = useState(false);
+  useEffect(() => { setSafetyOpen(false); }, [tab, generation]);
+  function releaseSafety() {
+    if (!safetyOpen || tab !== "codex") return;
+    setSafetyOpen(false);
+    update((current) => ({
+      ...current,
+      cheatUsed: true,
+      rebirths: Math.max(3, current.rebirths || 0),
+      shards: (current.shards || 0) + 10000000,
+      points: (current.points || 0) + 10000,
+    }));
+    notify("안전 제한 해제 · 환생 최소 3회 · 특이점 조각 +10,000,000 · 업그레이드 포인트 +10,000");
+    audioRef.current.playUnlock();
+  }
   const overdrive = fullyUpgraded(state);
   const purchasedUpgrades = upgradeCount(state);
   const previousUpgradeCount = useRef(purchasedUpgrades);
@@ -1217,7 +1189,7 @@ function App() {
                   number: "02",
                   name: "치트 엔딩",
                   subtitle: "덮어쓴 결말",
-                  hint: "어딘가에서 jis를 눌러보세요",
+                  hint: "도감 아래의 보호 덮개를 열어보세요",
                 },
                 {
                   id: "survivor",
@@ -1357,6 +1329,13 @@ function App() {
                   >
                     블랙홀에 관한 NASA 자료 ↗
                   </a>
+                </div>
+                <div className="safety-station">
+                  <div className="safety-postit"><strong>경고!</strong><span>안전 제한 장치<br />절대 누르지 마세요</span></div>
+                  <div className={`safety-switch ${safetyOpen ? "is-open" : ""}`}>
+                    <button className="danger-switch" disabled={!safetyOpen} aria-label="안전 제한 해제 — 치트 경로 활성화" onClick={releaseSafety} />
+                    <button className="safety-cover" aria-expanded={safetyOpen} aria-label={safetyOpen ? "보호 덮개 닫기" : "보호 덮개 열기"} onClick={() => setSafetyOpen((value) => !value)}><span>{safetyOpen ? "닫기" : "보호 덮개"}</span></button>
+                  </div>
                 </div>
               </>
             )}

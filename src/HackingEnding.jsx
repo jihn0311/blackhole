@@ -56,7 +56,7 @@ export function HackingEnding() {
     >
       <canvas ref={ref} />
       <div className="cheat-terminal-message">
-        <small>JIS / ACCESS REVOKED</small>
+        <small>OVERRIDE / ACCESS REVOKED</small>
         <p>{message}</p>
         <span>_</span>
       </div>
@@ -72,10 +72,10 @@ export function HackingCredits() {
         우주를 삼킨 것은 블랙홀이 아니었습니다.
       </p>
       <div className="credits-chapter">
-        <h2>입력한 세 글자</h2>
-        <p>jis</p>
+        <h2>열어 버린 보호 덮개</h2>
+        <p>SAFETY OVERRIDE</p>
         <p>
-          금지 명령은 합성 장치의 안전 제한을 해제했습니다.
+          빨간 버튼은 합성 장치의 안전 제한을 해제했습니다.
           <br />
           당신은 경고보다 빠른 성장을 선택했습니다.
         </p>
