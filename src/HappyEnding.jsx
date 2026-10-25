@@ -9,7 +9,7 @@ export function HappyEscape() {
 }
 export function HappyCredits() {
   return <>
-    <p className="credits-eyebrow">ENDING 04 · THE LIGHT RETURNS</p><h1>돌아온 별빛</h1><p className="credits-subtitle">모든 끝에서 배운, 새로운 시작</p>
+    <p className="credits-eyebrow">THE LAST ENDING</p><h1>돌아온 별빛</h1><p className="credits-subtitle">모든 끝에서 배운, 새로운 시작</p>
     <div className="credits-chapter"><h2>세 번의 기록</h2><p>공급은 재앙을 키웠고,<br />제한을 지우자 현실이 무너졌습니다.<br />아무것도 하지 않으면, 혼자만 살아남았습니다.</p></div>
     <div className="credits-chapter"><h2>네 번째 선택</h2><p>당신은 합성 장치의 흐름을 뒤집었습니다.<br />삼켜진 에너지가 별빛이 되어 돌아왔고,<br />멈춰 있던 비상 추진 장치에 다시 불이 켜졌습니다.</p></div>
     <div className="credits-chapter"><h2>태양계는 무사합니다.</h2><p>이번에는 임무도, 당신도 포기하지 않았습니다.<br />푸른 지구에서 귀환 신호가 도착했습니다.</p></div>

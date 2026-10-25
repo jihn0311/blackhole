@@ -1230,7 +1230,7 @@ function App() {
                     }
                   >
                     <div className="ending-tile-top">
-                      <span>{display(`ENDING ${ending.number}`)}</span>
+                      <span>{display(ending.id === "happy" ? "THE LAST ENDING" : `ENDING ${ending.number}`)}</span>
                       <b>{display(unlocked ? "해금 완료" : "미해금")}</b>
                     </div>
                     <h3>{display(ending.name)}</h3>
