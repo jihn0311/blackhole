@@ -982,7 +982,7 @@ function App() {
         </aside>
         </div>
         <section
-          className={`space-panel ${fullyUpgraded(state) && bodies.every((body) => isUnlocked(state, body)) ? "sky-mastery" : ""} ${fullyUpgraded(state) ? "singularity-overdrive" : ""} ${codexComplete(state) ? "codex-mastery" : ""}`}
+          className={`space-panel ${happyAvailable ? "happy-ready" : ""} ${fullyUpgraded(state) && bodies.every((body) => isUnlocked(state, body)) ? "sky-mastery" : ""} ${fullyUpgraded(state) ? "singularity-overdrive" : ""} ${codexComplete(state) ? "codex-mastery" : ""}`}
         >
           <div className="space-heading">
             <span className="eyebrow">DEEP SPACE OBSERVATORY</span>
@@ -1219,7 +1219,7 @@ function App() {
                 { id: "happy", number: "04", name: "해피엔딩", subtitle: "돌아온 별빛", hint: "일반·치트·생존자 엔딩을 모두 감상하세요" },
               ].map((ending) => {
                 const unlocked = unlockedEndings.includes(ending.id);
-                const mysterious = ending.id === "happy";
+                const mysterious = ending.id === "happy" && !unlocked;
                 const glyphs = (text) => Array.from(text, (char, index) => /\s/.test(char) ? char : ["□", "■", "◻", "■"][index % 4]).join("");
                 const display = (text) => mysterious ? glyphs(text) : text;
                 return (

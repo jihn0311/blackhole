@@ -2682,3 +2682,12 @@ article.body-card:hover {
 .happy-center-button span { font-size: 12px; letter-spacing: 2px; color: #a1e7d8; }
 .happy-center-button strong { font-size: 19px; }
 .happy-center-button:hover { background: #17434f; box-shadow: 0 0 38px #69e3d688; }
+/* A restrained dawn around the final choice. */
+.space-panel.happy-ready::after { content: ''; position: absolute; inset: 0; z-index: 4; pointer-events: none; background: radial-gradient(ellipse at 50% 47%, #9ce9d92b 0%, #659fbd18 32%, #a8cae909 65%, transparent 90%); }
+.happy-center-button { min-width: 185px; padding: 23px 28px; border-radius: 50%; border: 1px solid #e0f8df99; background: radial-gradient(ellipse, #163839dc, #1b3a4588 65%, #d8b58918); color: #f0fff5; box-shadow: 0 0 22px #c5edd536, 0 0 64px #87cdd729, inset 0 0 24px #d1efd51c; backdrop-filter: blur(5px); text-shadow: 0 1px 8px #071c24; transition: box-shadow .3s, border-color .3s, background .3s; }
+.happy-center-button::before { content: ''; position: absolute; inset: -9px -19px; border: 1px solid #d9c59b55; border-radius: 50%; transform: rotate(-15deg); pointer-events: none; box-shadow: 0 0 15px #dfb57818; }
+.happy-center-button::after { content: ''; position: absolute; inset: -17px -9px; border: 1px solid #96dbdc33; border-radius: 50%; transform: rotate(18deg); pointer-events: none; }
+.happy-center-button span { color: #d2e5cf; font-size: 11px; letter-spacing: 2px; }
+.happy-center-button strong { font-size: 18px; font-weight: 600; letter-spacing: 1px; }
+.happy-center-button:hover { background: radial-gradient(ellipse,#285457ed,#23536599 65%,#dfc6a12b); border-color: #efffe3; box-shadow: 0 0 30px #c5edd560,0 0 85px #87cdd740,inset 0 0 25px #d1efd52c; }
+@media(prefers-reduced-motion: reduce) { .happy-center-button { transition: none; } }
