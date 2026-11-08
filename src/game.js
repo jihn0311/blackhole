@@ -216,6 +216,26 @@ const unlockMasses = [
 bodies.forEach((body, index) => {
   body.unlock = unlockMasses[index];
 });
+export const originalBodies = bodies.map((b) => ({ ...b }));
+const balance = {
+  levelMassMultiplier: 1,
+  upgradeCostMultiplier: 1,
+  gainMultiplier: 1,
+  cooldownMultiplier: 1,
+};
+let originalUpgradeBases;
+export function configureGame(settings) {
+  for (const key of Object.keys(balance)) balance[key] = settings[key] ?? 1;
+  bodies.forEach((b, i) =>
+    Object.assign(b, originalBodies[i], settings.planets?.[b.id] || {}),
+  );
+  originalUpgradeBases ??= Object.fromEntries(
+    upgrades.map((u) => [u.id, u.base]),
+  );
+  upgrades.forEach((u) => {
+    u.base = settings.upgradeBases?.[u.id] ?? originalUpgradeBases[u.id];
+  });
+}
 export const isUnlocked = (s, b) =>
   s.mass >= b.unlock && (s.rebirths || 0) >= (b.rebirth || 0);
 export const hasDiscovered = (s, id) =>
@@ -392,6 +412,7 @@ export function level(mass) {
   const value = Math.max(0, Number.isFinite(mass) ? mass : 0);
   let low = 1,
     high = Math.max(2, Math.ceil(Math.cbrt(value / 100) * 2) + 2);
+  while (levelFloor(high) <= value) high *= 2;
   while (low + 1 < high) {
     const mid = Math.floor((low + high) / 2);
     if (levelFloor(mid) <= value) low = mid;
@@ -399,7 +420,10 @@ export function level(mass) {
   }
   return low;
 }
-export const levelFloor = (lv) => 10 * lv * (lv - 1) ** 2 * (2 * lv + 1);
+export const levelFloor = (lv) =>
+  Math.round(
+    10 * lv * (lv - 1) ** 2 * (2 * lv + 1) * balance.levelMassMultiplier,
+  );
 export function levelProgress(mass) {
   const lv = level(mass),
     floor = levelFloor(lv),
@@ -419,7 +443,13 @@ const exactMassFormatter = new Intl.NumberFormat("ko-KR", {
 });
 export const fmtExact = (n) => exactMassFormatter.format(n);
 export function upgradeCost(u, n) {
-  return u.base + 2 * n + 2 * Math.max(0, n - 2) ** 2;
+  return Math.max(
+    1,
+    Math.round(
+      (u.base + 2 * n + 2 * Math.max(0, n - 2) ** 2) *
+        balance.upgradeCostMultiplier,
+    ),
+  );
 }
 export const fullyUpgraded = (s) =>
   upgrades.every((u) => (s.upgrades[u.id] || 0) >= u.max);
@@ -446,6 +476,7 @@ export function levelPoints(s, from, to) {
 export const massGain = (s, b) =>
   Math.round(
     b.mass *
+      balance.gainMultiplier *
       (1 + s.upgrades.efficiency * 0.15) *
       permanentMass(s) *
       (fullyUpgraded(s) ? 10 : 1) *
@@ -634,6 +665,7 @@ export function cooldown(s, b, auto = false) {
   return Math.max(
     120,
     b.cooldown *
+      balance.cooldownMultiplier *
       1000 *
       0.85 ** s.upgrades.cooldown *
       permanentTime(s) *

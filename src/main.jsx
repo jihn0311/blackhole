@@ -1,4 +1,6 @@
 import { happyEndingUnlocked } from "./happyEnding.js";
+import gameSettings from "./gameSettings.json";
+import { configureGame } from "./game.js";
 import { StoryIntro } from "./StoryIntro.jsx";
 import { StoryWarning } from "./StoryWarning.jsx";
 import { survivorEligible } from "./survivorEligibility.js";
@@ -713,7 +715,7 @@ function App() {
         >
           <span className="brand-mark">◉</span>
           <span>
-            EVENT HORIZON<small>블랙홀 키우기</small>
+            {gameSettings.gameTitle}<small>{gameSettings.subtitle}</small>
             <span className="play-time" aria-label={`누적 플레이 시간 ${playTime}`}>PLAY TIME {playTime}</span>
           </span>
         </a>
@@ -1531,4 +1533,15 @@ function App() {
     </div>
   );
 }
-createRoot(document.getElementById("root")).render(<App />);
+const root = createRoot(document.getElementById("root"));
+configureGame(gameSettings);
+document.title = `${gameSettings.gameTitle} · ${gameSettings.subtitle}`;
+if (import.meta.env.DEV && new URLSearchParams(location.search).has("admin")) {
+  if (new URLSearchParams(location.search).get("admin") === "save") {
+    import("./AdminPanel.jsx").then(({ AdminPanel }) => root.render(<AdminPanel />));
+  } else {
+    import("./GlobalAdmin.jsx").then(({ GlobalAdmin }) => root.render(<GlobalAdmin />));
+  }
+} else {
+  root.render(<><App />{import.meta.env.DEV && <a href="?admin" style={{ position: 'fixed', right: 16, bottom: 10, zIndex: 99999, color: '#a8eaf3', background: '#101c2b', padding: '8px 12px', borderRadius: 8, fontSize: 12 }}>관리자 ↗</a>}</>);
+}
