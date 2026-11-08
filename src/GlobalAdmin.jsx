@@ -35,6 +35,7 @@ const multipliers = [
   ],
 ];
 const labels = {
+  removedPlanets: "삭제할 천체",
   levelMassMultiplier: "레벨업 필요 질량 배율",
   upgradeCostMultiplier: "강화 가격 배율",
   gainMultiplier: "흡수 질량 배율",
@@ -349,7 +350,12 @@ export function GlobalAdmin() {
                   });
                 return (
                   <article key={b.id}>
-                    <h3>{b.name}</h3>
+                    <h3>{b.name}{config.removedPlanets?.includes(b.id) ? " · 삭제 예정" : ""}</h3>
+                    <button disabled={b.id === 'asteroid'} onClick={() => {
+                      const removed = config.removedPlanets || [];
+                      if (removed.includes(b.id)) edit('removedPlanets', removed.filter(id => id !== b.id));
+                      else if (window.confirm(`${b.name}을 소환 목록과 도감에서 삭제할까요? 배포 후 적용됩니다. 관련 미션은 소행성 미션으로 대체됩니다.`)) edit('removedPlanets', [...removed, b.id]);
+                    }}>{b.id === 'asteroid' ? '첫 천체 · 삭제 불가' : config.removedPlanets?.includes(b.id) ? '삭제 취소 · 복원' : '이 천체 삭제'}</button>
                     <div className="admin-planet-fields">
                       {[
                         ["name", "이름"],

@@ -36,7 +36,7 @@ test("configured balance changes real gameplay and can restore defaults", () => 
   const s = fresh(),
     b = bodies[0],
     floor = levelFloor(25),
-    gain = massGain(s, b),
+    gain = massGain(s, bodies[0]),
     delay = cooldown(s, b),
     price = upgradeCost(upgrades[0], 3);
   try {
@@ -49,20 +49,20 @@ test("configured balance changes real gameplay and can restore defaults", () => 
     assert.equal(levelFloor(25), Math.round(floor * 0.1));
     for (const lv of [1, 2, 25, 300, 400, 1000])
       assert.equal(level(levelFloor(lv)), lv);
-    assert.equal(massGain(s, b), gain * 2);
+    assert.equal(massGain(s, bodies[0]), gain * 2);
     assert.equal(cooldown(s, b), delay * 2);
     assert.equal(upgradeCost(upgrades[0], 3), price * 3);
     configureGame({
       planets: { asteroid: { mass: 123, name: "시험 소행성" } },
       upgradeBases: { [upgrades[0].id]: 20 },
     });
-    assert.equal(massGain(s, b), 123);
+    assert.equal(massGain(s, bodies[0]), 123);
     assert.equal(upgradeCost(upgrades[0], 0), 20);
   } finally {
     configureGame({});
   }
   assert.equal(levelFloor(25), floor);
-  assert.equal(massGain(s, b), gain);
+  assert.equal(massGain(s, bodies[0]), gain);
 });
 test("public setting diff detects additions, deletions and story changes", () => {
   const edited = structuredClone(config);
@@ -92,3 +92,4 @@ test("publishing API rejects cross-origin, missing custom header and rebinding h
       false,
     );
 });
+

@@ -164,6 +164,7 @@ bodies.push(
 );
 bodies.sort((a, b) => a.unlock - b.unlock);
 export const baseBodies = [...bodies];
+const originalBaseIds = new Set(baseBodies.map(b => b.id));
 export const prestigeBodies = [
   {
     id: "redgiant",
@@ -227,11 +228,17 @@ export const customEndings = [];
 let originalUpgradeBases;
 export function configureGame(settings) {
   for (const key of Object.keys(balance)) balance[key] = settings[key] ?? 1;
-  bodies.splice(originalBodies.length);
-  bodies.forEach((b, i) =>
-    Object.assign(b, originalBodies[i], settings.planets?.[b.id] || {}),
-  );
-  bodies.push(...(settings.customPlanets || []).map(b => ({ ...b })));
+  const removed = new Set(settings.removedPlanets || []);
+  bodies.splice(0, bodies.length, ...originalBodies.filter(b => !removed.has(b.id)).map(b => ({...b, ...settings.planets?.[b.id]})), ...(settings.customPlanets || []).map(b => ({...b})));
+  baseBodies.splice(0, baseBodies.length, ...bodies.filter(b => originalBaseIds.has(b.id)));
+  missions.forEach((mission, i) => Object.assign(mission, originalMissions[i]));
+  for (const [index, id] of [[2,'moon'],[4,'mars'],[5,'earth'],[6,'saturn'],[7,'jupiter']]) {
+    if (removed.has(id)) Object.assign(missions[index], {title:'대체 탐사',description:'소행성을 3개 흡수하세요.', value:s=>s.counts.asteroid || 0});
+  }
+  missions[8].target = Math.min(7, bodies.length);
+  missions[8].description = `서로 다른 천체 ${missions[8].target}종을 발견하세요.`;
+  missions[9].target = baseBodies.length;
+  missions[9].description = `기본 천체 ${baseBodies.length}종의 도감을 완성하세요.`;
   customEndings.splice(0, customEndings.length, ...(settings.customEndings || []));
   originalUpgradeBases ??= Object.fromEntries(
     upgrades.map((u) => [u.id, u.base]),
@@ -593,6 +600,7 @@ missions.push({
   value: baseDiscovered,
   reward: 8,
 });
+const originalMissions = missions.map(m => ({...m}));
 export const extraSpawnChance = (s) =>
   Math.min(0.2, (s.upgrades.auto || 0) * 0.02);
 export const criticalChance = (s) =>
@@ -763,7 +771,7 @@ export function restore(d, now = Date.now()) {
     const oldLevel = 1 + Math.floor(Math.log2(1 + s.mass / 100));
     refund += Math.max(0, level(s.mass) - oldLevel) * 2;
   }
-  for (const b of bodies) {
+  for (const b of [...originalBodies, ...bodies.filter(b => !originalBodies.some(o => o.id === b.id))]) {
     if (
       (s.counts?.[b.id] || 0) > 0 ||
       (d.version >= 3 && s.codex?.[b.id] === true)

@@ -36,6 +36,9 @@ export function validateSettings(input) {
     result[key] = num(input[key], key, 0.1, 10);
   if (!object(input.planets) || !object(input.upgradeBases))
     throw new Error("천체·강화 설정 형식이 올바르지 않습니다.");
+  const removed = input.removedPlanets ?? [];
+  if (!Array.isArray(removed) || removed.some(id => id === 'asteroid' || !bodies.some(b => b.id === id))) throw new Error('첫 소행성은 삭제할 수 없습니다. 삭제할 천체를 확인하세요.');
+  result.removedPlanets = [...new Set(removed)];
   result.planets = {};
   for (const [id, p] of Object.entries(input.planets)) {
     if (!bodies.some((b) => b.id === id) || !object(p))
