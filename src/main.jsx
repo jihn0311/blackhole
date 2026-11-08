@@ -1,3 +1,5 @@
+import { customEndings } from "./game.js";
+import { customEndingReady } from "./customContent.js";
 import { happyEndingUnlocked } from "./happyEnding.js";
 import gameSettings from "./gameSettings.json";
 import { configureGame } from "./game.js";
@@ -427,7 +429,7 @@ function App() {
     setTab("play");
     setHappyEnding(true);
   }
-  const endingsAvailable = unlockedEndings.length > 0;
+  const endingsAvailable = unlockedEndings.length > 0 || customEndings.length > 0;
   const [survivorEnding, setSurvivorEnding] = useState(false);
   const canSurvive = !happyEnding && !introOpen && survivorEligible(state);
   useEffect(() => {
@@ -439,6 +441,7 @@ function App() {
     }, 120000);
     return () => clearTimeout(timer);
   }, [canSurvive, generation, survivorEnding, creditsReplay]);
+  const activeCustomEnding = customEndings.find(e => e.id === replayVariant);
   const ended =
     happyEnding || survivorEnding ||
     creditsReplay ||
@@ -452,7 +455,7 @@ function App() {
     if (ended) {
       audioRef.current.playCredits(
         creditsReplay
-          ? replayVariant
+          ? (activeCustomEnding?.style || replayVariant)
           : happyEnding ? "happy" : survivorEnding
             ? "survivor"
             : state.cheatUsed
@@ -657,10 +660,11 @@ function App() {
         <CosmicEnding
           key={happyEnding ? "happy-ending" : creditsReplay ? `replay-${replayVariant}` : "live-ending"}
           level={happyEnding || creditsReplay || survivorEnding ? 400 : lv}
+          customEnding={creditsReplay ? activeCustomEnding : null}
           replay={creditsReplay}
           variant={
             creditsReplay
-              ? replayVariant
+              ? (activeCustomEnding?.style || replayVariant)
               : happyEnding ? "happy" : survivorEnding
                 ? "survivor"
                 : state.cheatUsed
@@ -671,6 +675,7 @@ function App() {
           onCorruptionBurst={() => audioRef.current.playCorruptionBurst()}
           onComplete={() => {
             const firstEnding = !creditsReplay && !state.endingSeen;
+            if (activeCustomEnding && creditsReplay) update(s => ({...s, unlockedEndings:[...new Set([...s.unlockedEndings, activeCustomEnding.id])]}));
             setCreditsReplay(false);
             setHappyEnding(false);
             setSurvivorEnding(false);
@@ -1085,7 +1090,7 @@ function App() {
                   aria-pressed={selected === b.id}
                   onClick={() => { setSelected(b.id); setNewBodies((ids) => ids.filter((id) => id !== b.id)); }}
                 >
-                  <kbd className="body-key">{shortcuts[i]}</kbd>
+                  <kbd className="body-key">{shortcuts[i] || "클릭"}</kbd>
                   {newBodies.includes(b.id) && <span className="notification-dot body-new-dot" role="img" aria-label="새로 해금된 천체" />}
                   <Planet body={b} />
                   <span className="body-details">
@@ -1193,7 +1198,7 @@ function App() {
             <button onClick={closeEndings}>닫기</button>
             <h2>엔딩 종류</h2>
             <p className="ending-gallery-intro">
-              네 가지 선택, 그리고 돌아갈 수 있는 우주.
+              서로 다른 선택, 그리고 돌아갈 수 있는 우주.
             </p>
             <div className="ending-gallery">
               {[
@@ -1219,8 +1224,10 @@ function App() {
                   hint: "아무것도 하지마세요",
                 },
                 { id: "happy", number: "04", name: "해피엔딩", subtitle: "돌아온 별빛", hint: "일반·치트·생존자 엔딩을 모두 감상하세요" },
+                ...customEndings.map((e,i) => ({...e, number:String(i+5).padStart(2,"0"), subtitle:"추가 엔딩", custom:true})),
               ].map((ending) => {
                 const unlocked = unlockedEndings.includes(ending.id);
+                const customReady = ending.custom && customEndingReady(ending, state, lv);
                 const mysterious = ending.id === "happy" && !unlocked;
                 const glyphs = (text) => Array.from(text, (char, index) => /\s/.test(char) ? char : ["□", "■", "◻", "■"][index % 4]).join("");
                 const display = (text) => mysterious ? glyphs(text) : text;
@@ -1242,7 +1249,7 @@ function App() {
                       <p>{display(ending.hint)}</p>
                     </div>
                     <button
-                      disabled={!unlocked && !(ending.id === "happy" && happyAvailable)}
+                      disabled={!unlocked && !customReady && !(ending.id === "happy" && happyAvailable)}
                       onClick={() => {
                         if (ending.id === "happy" && !unlocked) { startHappyEnding(); return; }
                         audioRef.current.unlock();
@@ -1250,7 +1257,7 @@ function App() {
                         setCreditsReplay(true);
                       }}
                     >
-                      {display(unlocked ? "엔딩 연출부터 다시 보기" : ending.id === "happy" && happyAvailable ? "역합성 연구 실행" : "잠겨 있음")}
+                      {display(unlocked ? "엔딩 연출부터 다시 보기" : ending.id === "happy" && happyAvailable ? "역합성 연구 실행" : customReady ? "엔딩 시작" : "잠겨 있음")}
                     </button>
                   </article>
                 );
@@ -1306,7 +1313,7 @@ function App() {
                   <strong>
                     {codexComplete(state)
                       ? "✦ 우주 통달 활성화"
-                      : "✦ 전체 도감 15종 완성 보상 · 우주 통달"}
+                      : `✦ 전체 도감 ${bodies.length}종 완성 보상 · 우주 통달`}
                   </strong>
                   <p>
                     영구 흡수 질량 ×20 · 레벨업·미션·반복 탐사 포인트 ×3 ·
@@ -1330,8 +1337,8 @@ function App() {
                           ? b.fact
                           : `${b.rebirth ? b.rebirth + "회 환생 후 · " : ""}${fmt(b.unlock)} M부터 생성 가능. 첫 흡수 후 정보가 공개됩니다.`}
                       </p>
-                      {hasDiscovered(state, b.id) && (
-                        <a href={b.source} target="_blank" rel="noreferrer">
+                      {hasDiscovered(state, b.id) && b.source && (
+                        <a href={b.source || undefined} target="_blank" rel="noreferrer">
                           NASA에서 더 알아보기 ↗
                         </a>
                       )}
@@ -1473,7 +1480,7 @@ function App() {
           aria-label="우주 통달 달성 알림"
         >
           <strong>✦ 전체 도감 완성! 우주 통달 활성화</strong>
-          <p>15종의 천체를 모두 발견했어요.</p>
+          <p>{bodies.length}종의 천체를 모두 발견했어요.</p>
           <ul>
             <li>영구 흡수 질량 ×20</li>
             <li>레벨업·미션·반복 탐사 포인트 ×3</li>

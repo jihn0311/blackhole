@@ -1,3 +1,4 @@
+import { ContentEditor } from "./ContentEditor.jsx";
 import React, { useState, useEffect } from "react";
 import { validateSettings, settingsDiff } from "./settingsSchema.js";
 import "./admin.css";
@@ -218,6 +219,7 @@ export function GlobalAdmin() {
           ["balance", "성장과 강화"],
           ["planets", "천체 설정"],
           ["story", "이름과 이야기"],
+            ["content", "천체·엔딩 추가"],
           ["review", `변경 검토 ${changes.length}`],
         ].map(([id, name]) => (
           <button
@@ -230,6 +232,7 @@ export function GlobalAdmin() {
         ))}
       </div>
       <fieldset disabled={busy} className="admin-editor">
+        {section === "content" && <ContentEditor config={config} onChange={edit} />}
         {section === "balance" && (
           <div className="admin-grid">
             <section className="admin-card">

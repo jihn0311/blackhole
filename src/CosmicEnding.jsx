@@ -10,6 +10,7 @@ import { collapseStage, endingReached, collapseMessages } from "./collapse.js";
 import "./CosmicEnding.css";
 export function CosmicEnding({
   level,
+  customEnding,
   onComplete,
   replay = false,
   variant = "normal",
@@ -115,7 +116,7 @@ export function CosmicEnding({
               className="credits-roll"
               onAnimationEnd={onComplete}
             >
-              {variant === "happy" ? (<HappyCredits />) : variant === "survivor" ? (
+              {customEnding ? (<><p className="credits-eyebrow">ADDITIONAL ENDING</p><h1>{customEnding.name}</h1>{customEnding.text.split(/\n/).filter(Boolean).map((line,i)=><div className="credits-chapter" key={i}><p>{line}</p></div>)}<div className="credits-chapter credits-last"><h2>THANK YOU FOR PLAYING</h2><p>개발 · codex와 j</p></div></>) : variant === "happy" ? (<HappyCredits />) : variant === "survivor" ? (
                 <SurvivorCredits />
               ) : variant === "hacking" ? (
                 <HackingCredits />

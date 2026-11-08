@@ -223,12 +223,16 @@ const balance = {
   gainMultiplier: 1,
   cooldownMultiplier: 1,
 };
+export const customEndings = [];
 let originalUpgradeBases;
 export function configureGame(settings) {
   for (const key of Object.keys(balance)) balance[key] = settings[key] ?? 1;
+  bodies.splice(originalBodies.length);
   bodies.forEach((b, i) =>
     Object.assign(b, originalBodies[i], settings.planets?.[b.id] || {}),
   );
+  bodies.push(...(settings.customPlanets || []).map(b => ({ ...b })));
+  customEndings.splice(0, customEndings.length, ...(settings.customEndings || []));
   originalUpgradeBases ??= Object.fromEntries(
     upgrades.map((u) => [u.id, u.base]),
   );
@@ -722,7 +726,7 @@ export function restore(d, now = Date.now()) {
         ...(Array.isArray(s.unlockedEndings) ? s.unlockedEndings : []),
         ...(clean.endingSeen ? [clean.endingType] : []),
       ]),
-    ].filter((id) => ["normal", "hacking", "survivor", "happy"].includes(id));
+    ].filter((id) => ["normal", "hacking", "survivor", "happy"].includes(id) || (typeof id === "string" && /^custom_[a-z0-9_]{1,60}$/.test(id)));
     clean.shards = s.shards ?? 0;
     if (!int(s.singularityDepth ?? 0)) return fresh();
     clean.singularityDepth = s.singularityDepth ?? 0;

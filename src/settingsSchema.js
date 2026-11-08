@@ -1,3 +1,4 @@
+import { validateCustomContent } from "./customContent.js";
 import { originalBodies as bodies, upgrades } from "./game.js";
 const object = (v) => v && typeof v === "object" && !Array.isArray(v);
 export function validateSettings(input) {
@@ -76,6 +77,13 @@ export function validateSettings(input) {
     title: text(s?.title, "장면 제목", 60),
     text: text(s?.text, "장면 설명", 500),
   }));
+  Object.assign(
+    result,
+    validateCustomContent(
+      input,
+      bodies.map((b) => b.id),
+    ),
+  );
   return result;
 }
 
