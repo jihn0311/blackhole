@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import { createHash } from "node:crypto";
 import { validateSettings } from "../src/settingsSchema.js";
 import { bodies, upgrades } from "../src/game.js";
+import { passwordMatches, createSessions } from "./adminAuth.js";
 
 const REPO = "jihn0311/blackhole";
 const FILE = "src/gameSettings.json";
@@ -22,6 +23,9 @@ export function trustedRequest(req) {
 }
 export function adminPlugin() {
   let busy = false;
+  const sessions = createSessions();
+  let failed = 0,
+    blockedUntil = 0;
   return {
     name: "local-publishing-admin",
     apply: "serve",
@@ -138,6 +142,53 @@ export function adminPlugin() {
         const url = new URL(req.url, "http://localhost");
         const route = url.pathname;
         try {
+          const token = req.headers.cookie?.match(
+            /(?:^|;\s*)eh_admin=([a-f0-9]{64})(?:;|$)/,
+          )?.[1];
+          if (req.method === "POST" && route === "/login") {
+            if (Date.now() < blockedUntil)
+              return respond(429, {
+                error: "로그인 시도가 많습니다. 1분 후 다시 시도해주세요.",
+              });
+            const data = await body(req);
+            let record;
+            try {
+              record = JSON.parse(
+                await readFile(
+                  resolve(server.config.root, ".admin-auth.json"),
+                  "utf8",
+                ),
+              );
+            } catch {
+              return respond(503, {
+                error: "이 컴퓨터에 관리자 비밀번호가 설정되지 않았습니다.",
+              });
+            }
+            if (!passwordMatches(data.password, record)) {
+              failed++;
+              if (failed >= 5) {
+                blockedUntil = Date.now() + 60000;
+                failed = 0;
+              }
+              return respond(401, { error: "비밀번호가 맞지 않습니다." });
+            }
+            failed = 0;
+            res.setHeader(
+              "Set-Cookie",
+              `eh_admin=${sessions.create()}; HttpOnly; SameSite=Strict; Path=/__admin; Max-Age=28800`,
+            );
+            return respond(200, { ok: true });
+          }
+          if (!sessions.valid(token))
+            return respond(401, { error: "관리자 비밀번호로 로그인해주세요." });
+          if (req.method === "POST" && route === "/logout") {
+            sessions.remove(token);
+            res.setHeader(
+              "Set-Cookie",
+              "eh_admin=; HttpOnly; SameSite=Strict; Path=/__admin; Max-Age=0",
+            );
+            return respond(200, { ok: true });
+          }
           if (req.method === "GET" && route === "/local") {
             const raw = await readFile(path, "utf8");
             return respond(200, {

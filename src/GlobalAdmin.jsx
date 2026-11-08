@@ -43,6 +43,7 @@ const labels = {
   subtitle: "부제",
 };
 export function GlobalAdmin() {
+  const [password, setPassword] = useState("");
   const [local, setLocal] = useState(null),
     [config, setConfig] = useState(null),
     [remote, setRemote] = useState(null),
@@ -155,7 +156,33 @@ export function GlobalAdmin() {
       <main className="admin-shell">
         <h1>공개 게임 관리</h1>
         <p role="status">{message}</p>
-        <button onClick={() => run(loadLocal)}>다시 불러오기</button>
+        <form
+          className="admin-card"
+          style={{ maxWidth: 440 }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            run(async () => {
+              await api("login", { password });
+              setPassword("");
+              await loadLocal();
+            });
+          }}
+        >
+          <label className="admin-setting">
+            관리자 비밀번호
+            <input
+              type="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              maxLength={256}
+            />
+          </label>
+          <button className="admin-primary" disabled={busy}>
+            로그인
+          </button>
+        </form>
       </main>
     );
   const fieldName = (field) => {
@@ -190,6 +217,20 @@ export function GlobalAdmin() {
           >
             공개 게임 ↗
           </a>
+          <button
+            disabled={busy}
+            onClick={() =>
+              run(async () => {
+                await api("logout", {});
+                setConfig(null);
+                setRemote(null);
+                setCommit(null);
+                setMessage("로그아웃했습니다.");
+              })
+            }
+          >
+            로그아웃
+          </button>
         </div>
       </header>
       <aside className="admin-notice">
@@ -219,7 +260,7 @@ export function GlobalAdmin() {
           ["balance", "성장과 강화"],
           ["planets", "천체 설정"],
           ["story", "이름과 이야기"],
-            ["content", "천체·엔딩 추가"],
+          ["content", "천체·엔딩 추가"],
           ["review", `변경 검토 ${changes.length}`],
         ].map(([id, name]) => (
           <button
@@ -232,7 +273,9 @@ export function GlobalAdmin() {
         ))}
       </div>
       <fieldset disabled={busy} className="admin-editor">
-        {section === "content" && <ContentEditor config={config} onChange={edit} />}
+        {section === "content" && (
+          <ContentEditor config={config} onChange={edit} />
+        )}
         {section === "balance" && (
           <div className="admin-grid">
             <section className="admin-card">

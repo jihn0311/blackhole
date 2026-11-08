@@ -10,3 +10,4 @@ output/*.py
 .env.*
 !.env.example
 ~$*
+.admin-auth.json
