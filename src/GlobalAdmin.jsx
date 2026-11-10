@@ -1,9 +1,13 @@
+import { createGithubAdmin } from "./githubAdmin.js";
+const webAdmin = !import.meta.env.DEV;
+const githubApi = createGithubAdmin();
 import { ContentEditor } from "./ContentEditor.jsx";
 import React, { useState, useEffect } from "react";
 import { validateSettings, settingsDiff } from "./settingsSchema.js";
 import "./admin.css";
 
 async function api(path, data) {
+  if (webAdmin) return githubApi(path, data);
   const response = await fetch(`/__admin/${path}`, {
     method: data ? "POST" : "GET",
     headers: {
@@ -59,7 +63,7 @@ export function GlobalAdmin() {
     setLocal(value);
     setConfig(value.config);
     setMessage(
-      "로컬 설정을 불러왔습니다. 공개 설정을 연결하면 변경 사항을 비교할 수 있습니다.",
+      "설정을 불러왔습니다. 공개 설정을 연결하면 변경 사항을 비교할 수 있습니다.",
     );
   }
   useEffect(() => {
@@ -157,6 +161,7 @@ export function GlobalAdmin() {
       <main className="admin-shell">
         <h1>공개 게임 관리</h1>
         <p role="status">{message}</p>
+        {webAdmin && <p>GitHub에서 blackhole 저장소만 선택한 토큰을 발급하세요. Contents 읽기·쓰기와 Actions 읽기 권한이 필요합니다. 토큰은 이 탭에서만 사용하며 로그아웃하거나 새로고침하면 사라집니다. 기존 로컬 관리자 비밀번호는 여기서 사용하지 않습니다. <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noreferrer">GitHub에서 토큰 만들기 ↗</a></p>}
         <form
           className="admin-card"
           style={{ maxWidth: 440 }}
@@ -170,10 +175,10 @@ export function GlobalAdmin() {
           }}
         >
           <label className="admin-setting">
-            관리자 비밀번호
+            {webAdmin ? "GitHub 접근 토큰" : "관리자 비밀번호"}
             <input
               type="password"
-              autoComplete="current-password"
+              autoComplete={webAdmin ? "off" : "current-password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -204,12 +209,11 @@ export function GlobalAdmin() {
             EVENT HORIZON / PUBLISHING CONSOLE
           </span>
           <h1>공개 게임 관리</h1>
-          <p>설정 편집 → 로컬 확인 → 변경 검토 → 공개 배포</p>
+          <p>설정 편집 → 변경 검토 → 공개 배포</p>
         </div>
         <div className="admin-actions">
-          <a className="admin-link" href="?admin=save">
-            내 기록 테스트 ↗
-          </a>
+          {!webAdmin && <a className="admin-link" href="?admin=save">
+            내 기록 테스트 ↗</a>}
           <a
             className="admin-link"
             href="https://jihn0311.github.io/blackhole/"
@@ -491,7 +495,7 @@ export function GlobalAdmin() {
             )}
             <div className="admin-actions">
               <button onClick={() => setConfirm("reload")}>
-                로컬 파일 다시 불러오기
+                설정 다시 불러오기
               </button>
               <button disabled={!remote} onClick={() => setConfirm("remote")}>
                 공개 설정으로 편집 내용 되돌리기
@@ -534,16 +538,15 @@ export function GlobalAdmin() {
           </b>
           <p>{message}</p>
         </div>
-        <button disabled={busy} onClick={() => run(preview)}>
-          로컬 적용
-        </button>
+        {!webAdmin && <button disabled={busy} onClick={() => run(preview)}>
+          로컬 적용</button>}
         <a
           className="admin-link"
           href="./?preview"
           target="_blank"
           rel="noreferrer"
         >
-          게임 미리보기 ↗
+          현재 게임 보기 ↗
         </a>
         <button
           className="admin-primary"

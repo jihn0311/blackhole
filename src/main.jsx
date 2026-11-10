@@ -985,10 +985,10 @@ function App() {
             ↺ 초기화
           </button>
           <button
-            title="관리자 로그인 · 이 컴퓨터에서 관리자 서버가 실행 중이어야 합니다"
+            title="관리자 페이지 열기"
             onClick={() => {
-              window.open(import.meta.env.DEV ? `${location.pathname}?admin` : 'http://127.0.0.1:5174/?admin', '_blank', 'noopener,noreferrer');
-              notify('관리자 로그인 창을 열었습니다. 연결되지 않으면 이 컴퓨터의 관리자 서버를 실행해주세요.');
+              window.open(`${location.pathname}?admin`, '_blank', 'noopener,noreferrer');
+              notify('관리자 페이지를 새 탭에서 열었습니다.');
             }}
           >
             ⚙ 관리자 페이지 ↗
@@ -1552,8 +1552,8 @@ function App() {
 const root = createRoot(document.getElementById("root"));
 configureGame(gameSettings);
 document.title = `${gameSettings.gameTitle} · ${gameSettings.subtitle}`;
-if (import.meta.env.DEV && new URLSearchParams(location.search).has("admin")) {
-  if (new URLSearchParams(location.search).get("admin") === "save") {
+if (new URLSearchParams(location.search).has("admin")) {
+  if (import.meta.env.DEV && new URLSearchParams(location.search).get("admin") === "save") {
     import("./AdminPanel.jsx").then(({ AdminPanel }) => root.render(<AdminPanel />));
   } else {
     import("./GlobalAdmin.jsx").then(({ GlobalAdmin }) => root.render(<GlobalAdmin />));
