@@ -984,6 +984,15 @@ function App() {
           >
             ↺ 초기화
           </button>
+          <button
+            title="관리자 로그인 · 이 컴퓨터에서 관리자 서버가 실행 중이어야 합니다"
+            onClick={() => {
+              window.open(import.meta.env.DEV ? `${location.pathname}?admin` : 'http://127.0.0.1:5174/?admin', '_blank', 'noopener,noreferrer');
+              notify('관리자 로그인 창을 열었습니다. 연결되지 않으면 이 컴퓨터의 관리자 서버를 실행해주세요.');
+            }}
+          >
+            ⚙ 관리자 페이지 ↗
+          </button>
               </div>
             </div>
         </aside>
@@ -1550,5 +1559,5 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has("admin")) {
     import("./GlobalAdmin.jsx").then(({ GlobalAdmin }) => root.render(<GlobalAdmin />));
   }
 } else {
-  root.render(<><App />{import.meta.env.DEV && <a href="?admin" style={{ position: 'fixed', right: 16, bottom: 10, zIndex: 99999, color: '#a8eaf3', background: '#101c2b', padding: '8px 12px', borderRadius: 8, fontSize: 12 }}>관리자 ↗</a>}</>);
+  root.render(<App />);
 }
