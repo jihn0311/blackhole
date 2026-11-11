@@ -59,3 +59,19 @@ GitHub에서 편집한 설정을 로컬 저장소와 동기화하려면 다른 �
 
 ## GitHub Pages 관리자
 공개 사이트의 ?admin에서 편집할 수 있습니다. 로컬 서버는 필요하지 않습니다. GitHub fine-grained 토큰에서 blackhole 저장소를 선택하고 Contents 읽기/쓰기, Actions 읽기를 허용한 뒤 연결합니다. 토큰은 메모리에서만 사용하며 새로고침/로그아웃 시 제거됩니다. 로컬 비밀번호는 공개 화면에서 사용하지 않습니다. 편집 후 공개 설정 연결, 변경 검토, 배포 순서로 저장합니다. 공개 모드에는 로컬 적용 및 내 기록 테스트 기능이 없습니다. 위의 개발 서버 전용 설명은 로컬 모드에 해당합니다.
+
+## Render 비밀번호 관리자 서버
+
+GitHub Pages 게임은 그대로 유지하고 관리자만 별도 Web Service로 실행합니다.
+
+- Language: Node / Branch: main / Root Directory: 비움
+- Build Command: `npm ci && npm run build`
+- Start Command: `npm start`
+- Instance Type: Free (유휴 후 첫 접속은 지연될 수 있음)
+- Health Check Path: `/healthz`
+- Environment: `ADMIN_PASSWORD` (9자 이상 관리자 비밀번호), `BLACKHOLE_GITHUB_TOKEN` (blackhole 저장소 Contents 읽기/쓰기, Actions 읽기)
+- Render가 자동 제공하는 `RENDER_EXTERNAL_URL`을 사용합니다. 다른 호스팅은 `ADMIN_PUBLIC_URL`에 HTTPS 서버 주소를 설정합니다.
+
+비밀번호와 토큰은 Render의 Environment에만 입력합니다. Git에 저장하지 않습니다. 기존에 공개된 토큰은 폐기하고 새 토큰을 사용하세요. 토큰은 브라우저에 전달하지 않습니다. 비밀번호는 시작 시 해시 처리되며 세션은 Secure/HttpOnly/SameSite 쿠키로 관리됩니다. 로그아웃·8시간 경과·서버 재시작 시 세션이 만료됩니다. 5회 실패하면 서버 전체에서 1분간 로그인이 제한됩니다. 이 서비스는 단일 인스턴스로 운영합니다.
+
+Render 서비스 주소의 `/?admin`을 열면 비밀번호 로그인이 나타납니다. 공개 설정은 GitHub에서 조회하며 변경은 SHA 충돌 확인 뒤 설정 파일에만 저장합니다. 서버 파일 시스템에 편집 내용을 의존하지 않습니다. 배포가 완료되면 실제 Render 주소로 게임의 관리자 링크를 연결해야 합니다. 그전까지 GitHub Pages의 기존 토큰 방식은 유지됩니다.

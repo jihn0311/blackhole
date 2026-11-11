@@ -1,5 +1,6 @@
 import { createGithubAdmin } from "./githubAdmin.js";
-const webAdmin = !import.meta.env.DEV;
+const hostedAdmin = window.__BLACKHOLE_PASSWORD_ADMIN__ === true;
+const webAdmin = !import.meta.env.DEV && !hostedAdmin;
 const githubApi = createGithubAdmin();
 import { ContentEditor } from "./ContentEditor.jsx";
 import React, { useState, useEffect } from "react";
@@ -161,6 +162,7 @@ export function GlobalAdmin() {
       <main className="admin-shell">
         <h1>공개 게임 관리</h1>
         <p role="status">{message}</p>
+        {hostedAdmin && <p>관리자 비밀번호를 입력하세요. GitHub 연결은 서버에서 처리합니다.</p>}
         {webAdmin && <p>GitHub에서 blackhole 저장소만 선택한 토큰을 발급하세요. Contents 읽기·쓰기와 Actions 읽기 권한이 필요합니다. 토큰은 이 탭에서만 사용하며 로그아웃하거나 새로고침하면 사라집니다. 기존 로컬 관리자 비밀번호는 여기서 사용하지 않습니다. <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noreferrer">GitHub에서 토큰 만들기 ↗</a></p>}
         <form
           className="admin-card"
@@ -212,7 +214,7 @@ export function GlobalAdmin() {
           <p>설정 편집 → 변경 검토 → 공개 배포</p>
         </div>
         <div className="admin-actions">
-          {!webAdmin && <a className="admin-link" href="?admin=save">
+          {!webAdmin && !hostedAdmin && <a className="admin-link" href="?admin=save">
             내 기록 테스트 ↗</a>}
           <a
             className="admin-link"
@@ -538,7 +540,7 @@ export function GlobalAdmin() {
           </b>
           <p>{message}</p>
         </div>
-        {!webAdmin && <button disabled={busy} onClick={() => run(preview)}>
+        {!webAdmin && !hostedAdmin && <button disabled={busy} onClick={() => run(preview)}>
           로컬 적용</button>}
         <a
           className="admin-link"

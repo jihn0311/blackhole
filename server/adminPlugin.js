@@ -4,13 +4,17 @@ import { resolve } from "node:path";
 import { createHash } from "node:crypto";
 import { validateSettings } from "../src/settingsSchema.js";
 import { bodies, upgrades } from "../src/game.js";
-import { passwordMatches, createSessions } from "./adminAuth.js";
+import { passwordMatches, passwordRecord, createSessions } from "./adminAuth.js";
 
 const REPO = "jihn0311/blackhole";
 const FILE = "src/gameSettings.json";
 const BASE = `https://api.github.com/repos/${REPO}`;
 const digest = (text) => createHash("sha256").update(text).digest("hex");
-export function trustedRequest(req) {
+export function trustedRequest(req, publicOrigin) {
+  if (publicOrigin) {
+    const expected = new URL(publicOrigin);
+    return expected.protocol === "https:" && req.headers.host === expected.host && (req.headers.origin === expected.origin || (req.method === "GET" && !req.headers.origin && req.headers["sec-fetch-site"] === "same-origin")) && req.headers["x-admin-request"] === "1" && (!req.headers["sec-fetch-site"] || req.headers["sec-fetch-site"] === "same-origin");
+  }
   const host = req.headers.host || "";
   if (!/^(127\.0\.0\.1|localhost):\d+$/.test(host)) return false;
   if (req.headers["x-admin-request"] !== "1") return false;
@@ -21,7 +25,9 @@ export function trustedRequest(req) {
     req.headers["sec-fetch-site"] === "same-origin"
   );
 }
-export function adminPlugin() {
+export function adminPlugin(options = {}) {
+  const hosted = !!options.publicOrigin;
+  const hostedRecord = hosted && passwordRecord(options.password);
   let busy = false;
   const sessions = createSessions();
   let failed = 0,
@@ -38,6 +44,7 @@ export function adminPlugin() {
       async function credential() {
         const token = process.env.BLACKHOLE_GITHUB_TOKEN;
         if (token) return token;
+        if (hosted) throw new Error("서버에 GitHub 연결 키가 설정되지 않았습니다.");
         // Use the signed-in Git credential manager. Never send the credential to the browser.
         return new Promise((yes, no) => {
           const child = execFile(
@@ -135,7 +142,7 @@ export function adminPlugin() {
           res.statusCode = code;
           res.end(JSON.stringify(value));
         };
-        if (!trustedRequest(req))
+        if (!trustedRequest(req, options.publicOrigin))
           return respond(403, {
             error: "이 컴퓨터의 관리자 화면에서만 요청할 수 있습니다.",
           });
@@ -153,7 +160,7 @@ export function adminPlugin() {
             const data = await body(req);
             let record;
             try {
-              record = JSON.parse(
+              record = hosted ? hostedRecord : JSON.parse(
                 await readFile(
                   resolve(server.config.root, ".admin-auth.json"),
                   "utf8",
@@ -175,7 +182,7 @@ export function adminPlugin() {
             failed = 0;
             res.setHeader(
               "Set-Cookie",
-              `eh_admin=${sessions.create()}; HttpOnly; SameSite=Strict; Path=/__admin; Max-Age=28800`,
+              `eh_admin=${sessions.create()}; HttpOnly; SameSite=Strict; Path=/__admin; Max-Age=28800${hosted ? "; Secure" : ""}`,
             );
             return respond(200, { ok: true });
           }
@@ -185,11 +192,15 @@ export function adminPlugin() {
             sessions.remove(token);
             res.setHeader(
               "Set-Cookie",
-              "eh_admin=; HttpOnly; SameSite=Strict; Path=/__admin; Max-Age=0",
+              `eh_admin=; HttpOnly; SameSite=Strict; Path=/__admin; Max-Age=0${hosted ? "; Secure" : ""}`,
             );
             return respond(200, { ok: true });
           }
           if (req.method === "GET" && route === "/local") {
+            if (hosted) {
+              const value = await remote();
+              return respond(200, { ...value, revision: value.sha, bodies, upgrades, repo: REPO });
+            }
             const raw = await readFile(path, "utf8");
             return respond(200, {
               config: validateSettings(JSON.parse(raw)),
@@ -239,13 +250,14 @@ export function adminPlugin() {
             const data = await body(req),
               config = validateSettings(data.config),
               serialized = JSON.stringify(config, null, 2) + "\n";
-            const old = await readFile(path, "utf8");
-            if (data.revision !== digest(old))
+            const old = hosted ? "" : await readFile(path, "utf8");
+            if (!hosted && data.revision !== digest(old))
               return respond(409, {
                 error:
                   "로컬 설정이 다른 창에서 변경되었습니다. 로컬 설정을 다시 불러오세요.",
               });
             if (route === "/preview") {
+              if (hosted) return respond(400, { error: "변경 검토 후 공개 게임에 배포해주세요." });
               await writeFile(path + ".tmp", serialized);
               await rename(path + ".tmp", path);
               return respond(200, { revision: digest(serialized) });
@@ -270,6 +282,7 @@ export function adminPlugin() {
                 branch: "main",
               }),
             });
+            if (hosted) return respond(200, { commit: result.commit.sha, sha: result.content.sha, revision: result.content.sha, localSynced: true });
             let localSynced = true;
             try {
               await writeFile(path + ".tmp", serialized);
