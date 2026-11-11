@@ -987,7 +987,7 @@ function App() {
           <button
             title="관리자 페이지 열기"
             onClick={() => {
-              window.open(`${location.pathname}?admin`, '_blank', 'noopener,noreferrer');
+              window.open(import.meta.env.DEV ? `${location.pathname}?admin` : 'https://blackhole-bxhq.onrender.com/?admin', '_blank', 'noopener,noreferrer');
               notify('관리자 페이지를 새 탭에서 열었습니다.');
             }}
           >
@@ -1553,10 +1553,14 @@ const root = createRoot(document.getElementById("root"));
 configureGame(gameSettings);
 document.title = `${gameSettings.gameTitle} · ${gameSettings.subtitle}`;
 if (new URLSearchParams(location.search).has("admin")) {
+  if (!import.meta.env.DEV && window.__BLACKHOLE_PASSWORD_ADMIN__ !== true) {
+    location.replace("https://blackhole-bxhq.onrender.com/?admin");
+  } else {
   if (import.meta.env.DEV && new URLSearchParams(location.search).get("admin") === "save") {
     import("./AdminPanel.jsx").then(({ AdminPanel }) => root.render(<AdminPanel />));
   } else {
     import("./GlobalAdmin.jsx").then(({ GlobalAdmin }) => root.render(<GlobalAdmin />));
+  }
   }
 } else {
   root.render(<App />);
