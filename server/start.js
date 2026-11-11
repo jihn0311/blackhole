@@ -1,3 +1,4 @@
+import { rankingHandler } from './rankings.js';
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { resolve, extname } from 'node:path';
@@ -8,6 +9,7 @@ export function createAdminServer({ root = process.cwd(), publicOrigin, password
   const origin = new URL(publicOrigin);
   if (origin.protocol !== 'https:' || origin.username || origin.password || origin.pathname !== '/' || origin.search || origin.hash) throw new Error('관리자 서버의 HTTPS 주소를 설정해주세요.');
   if (typeof password !== 'string' || password.length < 9 || password.length > 256) throw new Error('ADMIN_PASSWORD를 9자 이상으로 설정해주세요.');
+  const rankings = rankingHandler();
   let api;
   adminPlugin({ publicOrigin: origin.origin, password }).configureServer({
     config: { root }, middlewares: { use(_path, handler) { api = handler; } },
@@ -19,6 +21,7 @@ export function createAdminServer({ root = process.cwd(), publicOrigin, password
     res.setHeader('Cache-Control', 'no-store');
     let url;
     try { url = new URL(req.url, origin.origin); } catch { res.writeHead(400).end(); return; }
+    if (url.pathname === '/rankings') { await rankings(req,res,url); return; }
     if (url.pathname === '/healthz') { res.writeHead(200, { 'Content-Type': 'text/plain' }).end('ok'); return; }
     if (url.pathname.startsWith('/__admin/')) {
       req.url = url.pathname.slice('/__admin'.length) + url.search;

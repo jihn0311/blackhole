@@ -1,3 +1,4 @@
+import { Rankings } from "./Rankings.jsx";
 import { customEndings } from "./game.js";
 import { customEndingReady } from "./customContent.js";
 import { happyEndingUnlocked } from "./happyEnding.js";
@@ -984,6 +985,7 @@ function App() {
           >
             ↺ 초기화
           </button>
+          <Rankings state={state} />
           <button
             title="관리자 페이지 열기"
             onClick={() => {
