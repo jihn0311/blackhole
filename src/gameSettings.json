@@ -6,6 +6,7 @@
   "upgradeCostMultiplier": 1,
   "gainMultiplier": 1,
   "cooldownMultiplier": 1,
+  "removedPlanets": [],
   "planets": {},
   "upgradeBases": {},
   "scenes": [
@@ -42,20 +43,6 @@
       "text": "이 관측소에는 귀환선이 없다. 당신은 처음부터 알고 있었다. 자신이 돌아가지 못하더라도, 누군가는 내일의 하늘을 올려다볼 수 있도록. 잠시 망설이던 손을, 조용히 조종석 위에 올렸다."
     }
   ],
-  "customPlanets": [
-    {
-      "id": "custom_58c34cc7df024e74b8ebfe0e16b5cbe9",
-      "name": "test",
-      "en": "test",
-      "kind": "사용자 제작 천체",
-      "mass": 1000,
-      "unlock": 10000,
-      "cooldown": 5,
-      "rebirth": 0,
-      "size": 15,
-      "color": "#87deea",
-      "fact": "새롭게 발견한 천체입니다."
-    }
-  ],
+  "customPlanets": [],
   "customEndings": []
 }
