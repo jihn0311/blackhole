@@ -771,6 +771,7 @@ function App() {
           >
             {endingsAvailable ? "엔딩 종류" : "🔒"}
           </button>
+          <Rankings state={state} unlocked={["normal", "hacking", "survivor", "happy"].every(id => unlockedEndings.includes(id))} onLocked={() => notify("모든 엔딩 감상 시 열림")} />
         </nav>
         <div className="header-status">
           <span className="status-dot" />
@@ -985,7 +986,6 @@ function App() {
           >
             ↺ 초기화
           </button>
-          <Rankings state={state} />
           <button
             title="관리자 페이지 열기"
             onClick={() => {
