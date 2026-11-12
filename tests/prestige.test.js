@@ -130,10 +130,10 @@ test("permanent purchases cost shards, have a cap, and apply after rebirth", () 
   const b = baseBodies[0],
     before = massGain(s, b);
   s = buyPermanent(s, "mass");
-  assert.equal(s.shards, 99);
+  assert.equal(s.shards, 90);
   assert.ok(massGain(s, b) > before);
   s = buyPermanent(s, "time");
-  assert.equal(s.shards, 97);
+  assert.equal(s.shards, 70);
   assert.ok(cooldown(s, b) < cooldown(fresh(), b));
   assert.equal(s.permanentSkills.mass, true);
   assert.equal(buyPermanent(s, "mass"), s);

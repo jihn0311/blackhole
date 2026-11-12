@@ -41,7 +41,7 @@ test("80 connected nodes enforce dependencies, price, single purchase and reacha
 });
 test("permanent tree has 10 nodes, ascending depth costs and requires both final parents", () => {
   assert.equal(permanentNodes.length, 10);
-  let s = { ...fresh(), shards: 1000 };
+  let s = { ...fresh(), shards: 10000 };
   assert.equal(buyPermanent(s, "eternity"), s);
   for (const n of permanentNodes) {
     for (const id of n.requires)
@@ -50,7 +50,7 @@ test("permanent tree has 10 nodes, ascending depth costs and requires both final
     assert.equal(s.permanentSkills[n.id], true);
     assert.equal(buyPermanent(s, n.id), s);
   }
-  assert.equal(s.shards, 1000 - permanentNodes.reduce((a, n) => a + n.cost, 0));
+  assert.equal(s.shards, 10000 - permanentNodes.reduce((a, n) => a + n.cost, 0));
   const ready = {
     ...s,
     mass: 100000,

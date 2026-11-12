@@ -69,7 +69,7 @@ export const permanentNodes = [
   id,
   name,
   description,
-  cost: [1, 2, 6, 18, 54, 162][row],
+  cost: [10, 20, 60, 180, 540, 1620][row],
   requires,
   col,
   row,
@@ -93,3 +93,4 @@ export function permanentEffect(s, id) {
 }
 
 export const deepeningMultiplier = (s) => 1 + (s.singularityDepth || 0) * 0.1;
+

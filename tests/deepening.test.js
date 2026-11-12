@@ -75,9 +75,11 @@ test("new shard rate and rising permanent costs preserve a reachable first purch
   s.points = 100;
   assert.equal(canRebirth(s), true);
   assert.equal(rebirthReward(s), 1);
+  assert.equal(buyPermanent(rebirth(s), "mass").permanentSkills.mass, undefined);
+  s.points = 1000;
   assert.equal(buyPermanent(rebirth(s), "mass").permanentSkills.mass, true);
   assert.equal(
     permanentNodes.reduce((sum, n) => sum + n.cost, 0),
-    323,
+    3230,
   );
 });
