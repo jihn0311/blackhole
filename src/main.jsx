@@ -1,3 +1,4 @@
+import { endingRules, collectedRequired } from "./endingRules.js";
 import { rankingMass } from "./rankingMass.js";
 import { Rankings } from "./Rankings.jsx";
 import { customEndings } from "./game.js";
@@ -270,6 +271,7 @@ function MassNumber({ value }) {
   return <span ref={element} className="growing-number">{fmt(value)}</span>;
 }
 
+const baseEndingRules = endingRules(gameSettings.baseEndings);
 function App() {
   const [state, setState] = useState(load),
     [selected, setSelected] = useState("asteroid"),
@@ -423,7 +425,7 @@ function App() {
       ...(state.endingSeen ? [state.endingType || "normal"] : []),
     ]),
   ];
-  const happyAvailable = happyEndingUnlocked(unlockedEndings) && !state.endingSeen;
+  const happyAvailable = baseEndingRules.happy.enabled && collectedRequired(baseEndingRules, unlockedEndings, false) && !state.endingSeen;
   const [happyEnding, setHappyEnding] = useState(false);
   function startHappyEnding() {
     if (!happyAvailable) return;
@@ -434,24 +436,26 @@ function App() {
   }
   const endingsAvailable = unlockedEndings.length > 0 || customEndings.length > 0;
   const [survivorEnding, setSurvivorEnding] = useState(false);
-  const canSurvive = !happyEnding && !introOpen && survivorEligible(state);
+  const canSurvive = baseEndingRules.survivor.enabled && !happyEnding && !introOpen && survivorEligible(state);
   useEffect(() => {
     if (!canSurvive || survivorEnding || creditsReplay) return;
     const timer = setTimeout(() => {
       if (!survivorEligible(live.current)) return;
       setSurvivorEnding(true);
       setTab("play");
-    }, 120000);
+    }, baseEndingRules.survivor.seconds * 1000);
     return () => clearTimeout(timer);
   }, [canSurvive, generation, survivorEnding, creditsReplay]);
   const activeCustomEnding = customEndings.find(e => e.id === replayVariant);
+  const activeBaseRule = baseEndingRules[state.cheatUsed ? "hacking" : "normal"];
+  const endingLevel = activeBaseRule.enabled ? progress.level * 400 / activeBaseRule.level : 0;
   const ended =
     happyEnding || survivorEnding ||
     creditsReplay ||
-    (!state.endingSeen && endingReached(progress.level));
+    (!state.endingSeen && activeBaseRule.enabled && endingReached(endingLevel));
   useEffect(() => {
     audioRef.current.setCollapse(
-      state.endingSeen || ended ? 0 : collapseStage(progress.level),
+      state.endingSeen || ended ? 0 : collapseStage(endingLevel),
     );
   }, [state.endingSeen, ended, progress.level]);
   useEffect(() => {
@@ -575,7 +579,7 @@ function App() {
   });
   function onAbsorb(id) {
     if (happyEnding || creditsReplay || survivorEnding) return { mass: 0, critical: false };
-    if (!live.current.endingSeen && endingReached(level(live.current.mass)))
+    if (!live.current.endingSeen && activeBaseRule.enabled && level(live.current.mass) >= activeBaseRule.level)
       return { mass: 0, critical: false };
     const before = live.current,
       roll = Math.random(),
@@ -652,7 +656,7 @@ function App() {
     <div
       className="app"
       data-collapse={
-        state.endingSeen || state.cheatUsed ? 0 : collapseStage(lv)
+        state.endingSeen || state.cheatUsed ? 0 : collapseStage(endingLevel)
       }
       style={{
         "--glitch": state.endingSeen ? 0 : Math.min(10, collapseStage(lv)),
@@ -662,7 +666,7 @@ function App() {
       {(!state.endingSeen || creditsReplay || happyEnding) && (
         <CosmicEnding
           key={happyEnding ? "happy-ending" : creditsReplay ? `replay-${replayVariant}` : "live-ending"}
-          level={happyEnding || creditsReplay || survivorEnding ? 400 : lv}
+          level={happyEnding || creditsReplay || survivorEnding ? 400 : endingLevel}
           customEnding={creditsReplay ? activeCustomEnding : null}
           replay={creditsReplay}
           variant={
@@ -773,7 +777,7 @@ function App() {
           >
             {endingsAvailable ? "엔딩 종류" : "🔒"}
           </button>
-          <Rankings state={state} unlocked={["normal", "hacking", "survivor", "happy"].every(id => unlockedEndings.includes(id))} onLocked={() => notify("모든 엔딩 감상 시 열림")} />
+          <Rankings state={state} unlocked={collectedRequired(baseEndingRules, unlockedEndings)} onLocked={() => notify("모든 엔딩 감상 시 열림")} />
         </nav>
         <div className="header-status">
           <span className="status-dot" />
@@ -1220,25 +1224,25 @@ function App() {
                   number: "01",
                   name: "일반 엔딩",
                   subtitle: "우주에 삼켜진 자",
-                  hint: "400레벨을 도달하세요",
+                  hint: `${baseEndingRules.normal.level}레벨을 도달하세요`,
                 },
                 {
                   id: "hacking",
                   number: "02",
                   name: "치트 엔딩",
                   subtitle: "덮어쓴 결말",
-                  hint: "도감 아래의 보호 덮개를 열어보세요",
+                  hint: `도감 보호 덮개를 열고 ${baseEndingRules.hacking.level}레벨에 도달하세요`,
                 },
                 {
                   id: "survivor",
                   number: "03",
                   name: "생존자 엔딩",
                   subtitle: "가장 조용한 선택",
-                  hint: "아무것도 하지마세요",
+                  hint: `${baseEndingRules.survivor.seconds}초 동안 아무것도 하지마세요`,
                 },
-                { id: "happy", number: "04", name: "해피엔딩", subtitle: "돌아온 별빛", hint: "일반·치트·생존자 엔딩을 모두 감상하세요" },
+                { id: "happy", number: "04", name: "해피엔딩", subtitle: "돌아온 별빛", hint: "활성화된 다른 기본 엔딩을 모두 감상하세요" },
                 ...customEndings.map((e,i) => ({...e, number:String(i+5).padStart(2,"0"), subtitle:"추가 엔딩", custom:true})),
-              ].map((ending) => {
+              ].filter(ending => ending.custom || baseEndingRules[ending.id]?.enabled).map((ending) => {
                 const unlocked = unlockedEndings.includes(ending.id);
                 const customReady = ending.custom && customEndingReady(ending, state, lv);
                 const mysterious = ending.id === "happy" && !unlocked;

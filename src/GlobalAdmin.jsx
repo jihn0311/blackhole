@@ -1,3 +1,4 @@
+import { BaseEndingEditor } from "./BaseEndingEditor.jsx";
 import { createGithubAdmin } from "./githubAdmin.js";
 const hostedAdmin = window.__BLACKHOLE_PASSWORD_ADMIN__ === true;
 const webAdmin = !import.meta.env.DEV && !hostedAdmin;
@@ -266,8 +267,7 @@ export function GlobalAdmin() {
         {[
           ["balance", "성장과 강화"],
           ["planets", "천체 설정"],
-          ["story", "이름과 이야기"],
-          ["content", "천체·엔딩 추가"],
+          ["content", "엔딩"],
           ["review", `변경 검토 ${changes.length}`],
         ].map(([id, name]) => (
           <button
@@ -281,7 +281,7 @@ export function GlobalAdmin() {
       </div>
       <fieldset disabled={busy} className="admin-editor">
         {section === "content" && (
-          <ContentEditor config={config} onChange={edit} />
+          <><BaseEndingEditor config={config} onChange={edit} /><ContentEditor config={config} onChange={edit} mode="endings" /></>
         )}
         {section === "balance" && (
           <div className="admin-grid">
@@ -339,6 +339,7 @@ export function GlobalAdmin() {
             </section>
           </div>
         )}
+        {section === "planets" && <ContentEditor config={config} onChange={edit} mode="planets" />}
         {section === "planets" && (
           <section className="admin-card">
             <h2>천체별 수치와 도감 설명</h2>
@@ -402,64 +403,6 @@ export function GlobalAdmin() {
                 );
               })}
             </div>
-          </section>
-        )}
-        {section === "story" && (
-          <section className="admin-card">
-            <h2>게임 이름과 도입부 문구</h2>
-            <label className="admin-setting">
-              게임 이름
-              <input
-                maxLength={50}
-                value={config.gameTitle}
-                onChange={(e) => edit("gameTitle", e.target.value)}
-              />
-            </label>
-            <label className="admin-setting">
-              부제
-              <input
-                maxLength={80}
-                value={config.subtitle}
-                onChange={(e) => edit("subtitle", e.target.value)}
-              />
-            </label>
-            {config.scenes.map((scene, i) => (
-              <article className="admin-scene" key={i}>
-                <h3>도입부 {i + 1}장면</h3>
-                <label className="admin-setting">
-                  제목
-                  <input
-                    aria-label={`${i + 1}장면 제목`}
-                    maxLength={60}
-                    value={scene.title}
-                    onChange={(e) =>
-                      edit(
-                        "scenes",
-                        config.scenes.map((s, j) =>
-                          i === j ? { ...s, title: e.target.value } : s,
-                        ),
-                      )
-                    }
-                  />
-                </label>
-                <label className="admin-setting">
-                  설명
-                  <textarea
-                    aria-label={`${i + 1}장면 설명`}
-                    maxLength={500}
-                    value={scene.text}
-                    onChange={(e) =>
-                      edit(
-                        "scenes",
-                        config.scenes.map((s, j) =>
-                          i === j ? { ...s, text: e.target.value } : s,
-                        ),
-                      )
-                    }
-                  />
-                </label>
-              </article>
-            ))}
           </section>
         )}
         {section === "review" && (

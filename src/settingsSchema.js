@@ -1,3 +1,4 @@
+import { validateEndingRules } from "./endingRules.js";
 import { validateCustomContent } from "./customContent.js";
 import { originalBodies as bodies, upgrades } from "./game.js";
 const object = (v) => v && typeof v === "object" && !Array.isArray(v);
@@ -87,6 +88,7 @@ export function validateSettings(input) {
       bodies.map((b) => b.id),
     ),
   );
+  result.baseEndings = validateEndingRules(input.baseEndings);
   return result;
 }
 

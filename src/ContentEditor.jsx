@@ -1,5 +1,5 @@
 import React from "react";
-export function ContentEditor({ config, onChange }) {
+export function ContentEditor({ config, onChange, mode }) {
   const planetFields = [
     ["name", "이름", "text"],
     ["mass", "흡수 질량", "number"],
@@ -89,8 +89,8 @@ export function ContentEditor({ config, onChange }) {
   );
   return (
     <div className="admin-grid">
-      <section className="admin-card">
-        <h2>새 천체 추가</h2>
+      {mode === "planets" && <section className="admin-card">
+        <h2>천체 추가·편집</h2>
         <p>
           색상과 크기로 천체를 만들고, 소환 목록과 도감에 추가합니다. 추가
           천체는 목록 마지막에 표시되며 버튼으로 소환할 수 있습니다.
@@ -119,9 +119,9 @@ export function ContentEditor({ config, onChange }) {
         {(config.customPlanets || []).map((p, i) =>
           form("customPlanets", p, i, planetFields),
         )}
-      </section>
-      <section className="admin-card">
-        <h2>새 엔딩 추가</h2>
+      </section>}
+      {mode === "endings" && <section className="admin-card">
+        <h2>엔딩 조건·추가·삭제</h2>
         <p>
           조건을 달성하면 엔딩 종류 창에서 직접 실행합니다. 기존 400레벨 엔딩을
           대체하지 않습니다. 연출·음악은 기존 4종 중 선택하고 크레딧은 직접
@@ -149,7 +149,7 @@ export function ContentEditor({ config, onChange }) {
         {(config.customEndings || []).map((p, i) =>
           form("customEndings", p, i, endingFields),
         )}
-      </section>
+      </section>}
     </div>
   );
 }
