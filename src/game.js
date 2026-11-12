@@ -1,3 +1,4 @@
+import { rankingMass } from "./rankingMass.js";
 import { skillNames, skillDescription } from "./skillPresentation.js";
 import { permanentEffect, deepeningMultiplier } from "./skillData.js";
 export const bodies = [
@@ -416,6 +417,7 @@ export const fresh = () => ({
   unlockedEndings: [],
   codex: {},
   bestMass: 0,
+  rankingBestMass: 0,
   holdPermanent: false,
 });
 // Blend 80% of the cubic curve with 20% of the previous quadratic curve.
@@ -620,6 +622,7 @@ export function absorb(s, id, roll = 1) {
     ...s,
     mass,
     bestMass: Math.max(s.bestMass || 0, mass),
+    rankingBestMass: s.cheatUsed ? rankingMass(s) : Math.max(rankingMass(s), mass),
     codex: { ...s.codex, [id]: true },
     points: s.points + levelPoints(s, level(s.mass), level(mass)),
     counts: { ...s.counts, [id]: (s.counts[id] || 0) + 1 },
@@ -763,6 +766,7 @@ export function restore(d, now = Date.now()) {
   }
   clean.holdPermanent = clean.holdPermanent || clean.upgrades.stream >= 10;
   clean.bestMass = Math.max(s.mass, d.version >= 3 ? s.bestMass || 0 : 0);
+  clean.rankingBestMass = rankingMass(s);
   let refund = 0;
   if (d.version === 1) {
     const old = s.upgrades?.gravity ?? 0;

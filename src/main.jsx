@@ -1,3 +1,4 @@
+import { rankingMass } from "./rankingMass.js";
 import { Rankings } from "./Rankings.jsx";
 import { customEndings } from "./game.js";
 import { customEndingReady } from "./customContent.js";
@@ -360,6 +361,7 @@ function App() {
     setSafetyOpen(false);
     update((current) => ({
       ...current,
+      rankingBestMass: rankingMass(current),
       cheatUsed: true,
       rebirths: Math.max(3, current.rebirths || 0),
       shards: (current.shards || 0) + 10000000,
