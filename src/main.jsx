@@ -1,3 +1,4 @@
+import { LocalTutorial } from "./LocalTutorial.jsx";
 import { endingRules, collectedRequired } from "./endingRules.js";
 import { rankingMass } from "./rankingMass.js";
 import { Rankings } from "./Rankings.jsx";
@@ -273,6 +274,8 @@ function MassNumber({ value }) {
 
 const baseEndingRules = endingRules(gameSettings.baseEndings);
 function App() {
+  const [tutorialSpawns,setTutorialSpawns]=useState(0);
+  const [tutorialReplay,setTutorialReplay]=useState(0);
   const [state, setState] = useState(load),
     [selected, setSelected] = useState("asteroid"),
     [tab, setTab] = useState("play"),
@@ -558,6 +561,7 @@ function App() {
     }
     if (queue.current.length > 40) return;
     update(() => n);
+    setTutorialSpawns(v=>v+1);
     const copies = spawnCount(prev, Math.random());
     for (let i = 0; i < copies; i++)
       queue.current.push({
@@ -714,6 +718,7 @@ function App() {
           }}
         />
       )}
+      {<LocalTutorial tab={tab} replay={tutorialReplay} state={state} spawned={tutorialSpawns} hidden={introOpen || ended} />}
       {introOpen && <StoryIntro onComplete={finishIntro} />}
       <StoryWarning level={lv} cheat={state.cheatUsed} ended={ended || state.endingSeen} generation={generation} />
       <header>
@@ -740,6 +745,7 @@ function App() {
           ].map(([id, label]) => (
             <button
               key={id}
+              data-tutorial={id}
               className={tab === id ? "active" : ""}
               onClick={() => (id === "prestige" ? openPrestige() : setTab(id))}
               aria-label={
@@ -1315,6 +1321,7 @@ function App() {
                 ? `보유 포인트 ${state.points} P · 레벨업과 미션으로 포인트를 모으세요.`
                 : `${catalog} / ${bodies.length}종 발견 · 천체를 처음 흡수하면 실제 정보가 기록됩니다.`}
             </p>
+            {tab === "codex" && <button onClick={() => { setTab("play"); setTutorialReplay(v => v + 1); }}>도움말 · 튜토리얼 다시 보기</button>}
             {tab === "upgrades" ? (
               <SkillTree
                 state={state}
