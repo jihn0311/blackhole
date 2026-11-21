@@ -43,6 +43,37 @@
       "text": "이 관측소에는 귀환선이 없다. 당신은 처음부터 알고 있었다. 자신이 돌아가지 못하더라도, 누군가는 내일의 하늘을 올려다볼 수 있도록. 잠시 망설이던 손을, 조용히 조종석 위에 올렸다."
     }
   ],
-  "customPlanets": [],
-  "customEndings": []
+  "customPlanets": [
+    {
+      "id": "custom_a13d922d8fea4d79bd95e4330271b99a",
+      "name": "ㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏ",
+      "en": "ㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏ",
+      "kind": "사용자 제작 천체",
+      "mass": 70,
+      "unlock": 0,
+      "cooldown": 1,
+      "rebirth": 0,
+      "size": 15,
+      "color": "#87deea",
+      "fact": "새롭게 발견한 천체입니다."
+    }
+  ],
+  "customEndings": [],
+  "baseEndings": {
+    "normal": {
+      "enabled": true,
+      "level": 400
+    },
+    "hacking": {
+      "enabled": true,
+      "level": 400
+    },
+    "survivor": {
+      "enabled": true,
+      "seconds": 120
+    },
+    "happy": {
+      "enabled": true
+    }
+  }
 }
